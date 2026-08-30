@@ -1,0 +1,1429 @@
+<title>Harness 拆裝手冊</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#F3F5F8;
+  --surface:#FFFFFF;
+  --surface-2:#E7ECF1;
+  --surface-3:#DCE3EA;
+  --ink:#151E27;
+  --ink-dim:#57646F;
+  --border:#D2DAE1;
+  --accent:#1B6E8C;
+  --accent-strong:#0F4F66;
+  --accent-soft:#DCEEF4;
+  --pass:#2F7A50;
+  --pass-soft:#E1F2E7;
+  --warn:#A8402F;
+  --warn-soft:#F7E4E1;
+  --code-bg:#0E141A;
+  --code-ink:#D8E1E8;
+  --code-key:#7FC7E8;
+  --code-str:#E3B673;
+  --code-com:#5C6B77;
+  --code-num:#B79AD9;
+  --shadow: 0 1px 2px rgba(21,30,39,.06), 0 8px 24px -12px rgba(21,30,39,.18);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D141B;
+    --surface:#131C25;
+    --surface-2:#1A2530;
+    --surface-3:#20303C;
+    --ink:#E6ECF1;
+    --ink-dim:#8CA0AC;
+    --border:#2A3946;
+    --accent:#5FB9DD;
+    --accent-strong:#8FD2EC;
+    --accent-soft:#173B49;
+    --pass:#6FC08A;
+    --pass-soft:#173423;
+    --warn:#E08A79;
+    --warn-soft:#3A211D;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 12px 28px -14px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D141B;
+  --surface:#131C25;
+  --surface-2:#1A2530;
+  --surface-3:#20303C;
+  --ink:#E6ECF1;
+  --ink-dim:#8CA0AC;
+  --border:#2A3946;
+  --accent:#5FB9DD;
+  --accent-strong:#8FD2EC;
+  --accent-soft:#173B49;
+  --pass:#6FC08A;
+  --pass-soft:#173423;
+  --warn:#E08A79;
+  --warn-soft:#3A211D;
+  --shadow: 0 1px 2px rgba(0,0,0,.3), 0 12px 28px -14px rgba(0,0,0,.6);
+}
+
+*{box-sizing:border-box;}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  line-height:1.6;
+}
+h1,h2,h3{text-wrap:balance; font-family:'IBM Plex Sans', sans-serif; color:var(--ink); margin:0;}
+p{margin:0 0 1em; color:var(--ink);}
+code, pre{font-family:'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;}
+.mono{font-family:'IBM Plex Mono', ui-monospace, monospace; overflow-wrap:anywhere;}
+a{color:var(--accent);}
+::selection{background:var(--accent-soft); color:var(--accent-strong);}
+@media (prefers-reduced-motion: reduce){ *{animation-duration:.001ms !important; transition-duration:.001ms !important;} }
+
+/* ---------- app shell ---------- */
+.app{
+  display:grid;
+  grid-template-columns: 300px minmax(0,1fr);
+  min-height:100vh;
+}
+@media (max-width: 900px){
+  .app{ grid-template-columns: 1fr; }
+}
+
+/* ---------- sidebar ---------- */
+.rail{
+  position:sticky; top:0; align-self:start; height:100vh;
+  border-right:1px solid var(--border);
+  background:var(--surface-2);
+  display:flex; flex-direction:column;
+  padding:28px 22px;
+  gap:22px;
+  overflow-y:auto;
+}
+@media (max-width: 900px){
+  .rail{ position:static; height:auto; border-right:none; border-bottom:1px solid var(--border); }
+}
+
+.brand .eyebrow{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--accent); font-weight:600;
+}
+.brand h1{
+  font-family:'Big Shoulders Display', sans-serif;
+  font-weight:800; font-size:34px; letter-spacing:.01em; line-height:1;
+  margin-top:6px;
+}
+.brand .sub{ color:var(--ink-dim); font-size:13.5px; margin-top:8px; }
+
+.progress-block{ display:flex; flex-direction:column; gap:8px; }
+.progress-label{
+  display:flex; justify-content:space-between; align-items:baseline;
+  font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--ink-dim);
+}
+.progress-label b{ color:var(--ink); font-variant-numeric:tabular-nums; }
+.meter{
+  height:8px; border-radius:2px; background:var(--surface-3);
+  overflow:hidden; border:1px solid var(--border);
+  display:flex; gap:2px; padding:2px;
+}
+.meter i{ display:block; flex:1; border-radius:1px; background:transparent; }
+.meter i.on{ background:var(--accent); }
+
+.chnav{ list-style:none; margin:0; padding:0; position:relative; }
+.chnav::before{
+  content:""; position:absolute; left:13px; top:6px; bottom:6px; width:2px;
+  background:var(--border);
+}
+.chnav li{ position:relative; }
+.chnode{
+  all:unset; box-sizing:border-box; display:flex; align-items:center; gap:12px;
+  width:100%; padding:9px 8px 9px 0; cursor:pointer; border-radius:6px;
+}
+.chnode:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+.chnode .dot{
+  position:relative; z-index:1; flex:none; width:26px; height:26px; border-radius:50%;
+  background:var(--surface); border:2px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'IBM Plex Mono', monospace; font-size:10.5px; font-weight:600; color:var(--ink-dim);
+}
+.chnode .label{ display:flex; flex-direction:column; min-width:0; }
+.chnode .t{ font-size:13.5px; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.chnode .k{ font-family:'IBM Plex Mono', monospace; font-size:10px; color:var(--ink-dim); letter-spacing:.06em; }
+
+.chnav li[data-state="active"] .chnode .dot{ border-color:var(--accent); color:var(--accent); background:var(--accent-soft); }
+.chnav li[data-state="active"] .chnode .t{ color:var(--accent-strong); font-weight:600; }
+.chnav li[data-state="passed"] .chnode .dot{ background:var(--pass); border-color:var(--pass); color:var(--pass-soft); }
+.chnav li[data-state="passed"] .chnode .dot::after{ content:"✓"; }
+.chnav li[data-state="locked"] .chnode{ cursor:not-allowed; opacity:.55; }
+.chnav li[data-state="soon"] .chnode{ cursor:default; }
+.chnav li[data-state="soon"] .chnode .dot{ border-style:dashed; }
+
+.rail-foot{ margin-top:auto; padding-top:10px; border-top:1px solid var(--border); font-size:11.5px; color:var(--ink-dim); font-family:'IBM Plex Mono', monospace; }
+
+/* ---------- main content ---------- */
+main{ min-width:0; padding:52px 40px 120px; }
+@media (max-width: 700px){ main{ padding:34px 18px 90px; } }
+.wrap{ max-width:700px; margin:0 auto; }
+
+.ch-head .eyebrow{
+  font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--accent); font-weight:600; display:flex; align-items:center; gap:10px;
+}
+.ch-head .eyebrow .num{
+  font-family:'Big Shoulders Display', sans-serif; font-size:16px; letter-spacing:0;
+  background:var(--accent-soft); color:var(--accent-strong); padding:1px 8px; border-radius:3px;
+}
+.ch-head h2{
+  font-family:'Big Shoulders Display', sans-serif; font-weight:800; font-size:44px; line-height:1.02;
+  margin-top:10px;
+}
+.ch-head .dek{ color:var(--ink-dim); font-size:16px; margin-top:12px; max-width:60ch; }
+
+.chapter{ display:none; }
+.chapter[data-active="true"]{ display:block; }
+
+.section{ margin-top:40px; }
+.section h3{ font-size:20px; font-weight:700; margin-bottom:12px; }
+.section h4{ font-size:15px; font-weight:600; margin:20px 0 8px; color:var(--ink); }
+.section p{ font-size:15.5px; max-width:66ch; overflow-wrap:break-word; }
+.section ul, .section ol{ margin:0 0 1em; padding-left:22px; max-width:64ch; }
+.section li{ margin-bottom:6px; font-size:15.5px; overflow-wrap:break-word; }
+.section strong{ color:var(--ink); }
+
+.callout{
+  border:1px solid var(--border); background:var(--surface); border-radius:10px;
+  padding:16px 18px; margin:18px 0; box-shadow:var(--shadow);
+  border-left:3px solid var(--accent); overflow-wrap:break-word;
+}
+.callout .k{ font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--accent); font-weight:600; margin-bottom:6px; display:block; }
+.callout p:last-child{ margin-bottom:0; }
+.callout.warn{ border-left-color:var(--warn); }
+.callout.warn .k{ color:var(--warn); }
+
+pre.code{
+  background:var(--code-bg); color:var(--code-ink);
+  border-radius:10px; padding:18px 20px; margin:16px 0;
+  overflow-x:auto; font-size:13px; line-height:1.65; box-shadow:var(--shadow);
+  border:1px solid rgba(255,255,255,.06);
+}
+pre.code .k{ color:var(--code-key); }
+pre.code .s{ color:var(--code-str); }
+pre.code .c{ color:var(--code-com); font-style:italic; }
+pre.code .n{ color:var(--code-num); }
+
+.diagram{ background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:20px; margin:18px 0; overflow-x:auto; box-shadow:var(--shadow); }
+.diagram svg{ display:block; margin:0 auto; }
+.diagram .cap{ margin-top:10px; font-size:12.5px; color:var(--ink-dim); text-align:center; }
+.dg-box{ fill:var(--surface-2); stroke:var(--border); stroke-width:1.5; }
+.dg-box.accent{ fill:var(--accent-soft); stroke:var(--accent); }
+.dg-line{ stroke:var(--ink-dim); stroke-width:1.5; fill:none; }
+.dg-arrow{ fill:var(--ink-dim); }
+.dg-text{ fill:var(--ink); font-family:'IBM Plex Sans', sans-serif; font-size:12.5px; }
+.dg-mono{ fill:var(--ink-dim); font-family:'IBM Plex Mono', monospace; font-size:10.5px; }
+
+.table-wrap{ overflow-x:auto; margin:16px 0; border-radius:10px; box-shadow:var(--shadow); }
+.section table{ width:100%; border-collapse:collapse; font-size:13.5px; background:var(--surface); }
+.section table th, .section table td{ text-align:left; padding:9px 14px; border-bottom:1px solid var(--border); vertical-align:top; }
+.section table th{ font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-dim); font-weight:600; background:var(--surface-2); white-space:nowrap; }
+.section table td .mono{ font-size:12.5px; }
+.section table tr:last-child td{ border-bottom:none; }
+
+.soon-panel{
+  border:1px dashed var(--border); border-radius:12px; padding:34px 28px; text-align:center;
+  color:var(--ink-dim); margin-top:32px; background:var(--surface);
+}
+.soon-panel .tag{ font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--accent); }
+.soon-panel h4{ color:var(--ink); font-size:18px; margin:10px 0 6px; }
+.soon-panel p{ max-width:50ch; margin:0 auto; font-size:14px; }
+
+/* ---------- quiz ---------- */
+.quiz{ margin-top:44px; border-top:1px solid var(--border); padding-top:28px; }
+.quiz-head{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+.quiz-head h3{ font-size:20px; }
+.quiz-head .hint{ font-size:12.5px; color:var(--ink-dim); font-family:'IBM Plex Mono', monospace; }
+.quiz-q{ background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:18px 20px; margin-top:16px; box-shadow:var(--shadow); }
+.quiz-q .q-text{ font-weight:600; font-size:15px; margin-bottom:12px; }
+.quiz-q .opt{ display:flex; align-items:flex-start; gap:10px; padding:8px 10px; border-radius:8px; cursor:pointer; font-size:14.5px; }
+.quiz-q .opt:hover{ background:var(--surface-2); }
+.quiz-q input[type="radio"]{ margin-top:3px; accent-color:var(--accent); flex:none; }
+.q-feedback{ margin-top:10px; padding:10px 12px; border-radius:8px; font-size:13.5px; }
+.q-feedback.correct{ background:var(--pass-soft); color:var(--pass); }
+.q-feedback.wrong{ background:var(--warn-soft); color:var(--warn); }
+
+.quiz-actions{ display:flex; align-items:center; gap:14px; margin-top:20px; flex-wrap:wrap; }
+.btn{
+  all:unset; box-sizing:border-box; font-family:'IBM Plex Sans', sans-serif; font-weight:600; font-size:14px;
+  padding:11px 20px; border-radius:8px; cursor:pointer; background:var(--accent); color:#fff;
+  transition:filter .15s ease;
+}
+.btn:hover{ filter:brightness(1.08); }
+.btn:focus-visible{ outline:2px solid var(--accent-strong); outline-offset:2px; }
+.btn.ghost{ background:transparent; border:1px solid var(--border); color:var(--ink); }
+.ch-link{ all:unset; color:var(--accent); text-decoration:underline; cursor:pointer; font:inherit; }
+.ch-link:hover{ filter:brightness(1.1); }
+.quiz-msg{ font-size:13.5px; font-weight:600; }
+.quiz-msg.ok{ color:var(--pass); }
+.quiz-msg.bad{ color:var(--warn); }
+
+.chapter-nav{ display:flex; justify-content:space-between; margin-top:48px; padding-top:20px; border-top:1px solid var(--border); }
+
+@keyframes pop{ from{ transform:scale(.9); opacity:0; } to{ transform:scale(1); opacity:1; } }
+.celebrate{ animation:pop .25s ease; }
+</style>
+
+<div class="app">
+  <nav class="rail" aria-label="章節導覽">
+    <div class="brand">
+      <div class="eyebrow">Harness 拆裝手冊</div>
+      <h1>Harness<br>拆裝手冊</h1>
+      <p class="sub">從零打造一個最小可行的 Agent Harness，再拆開 hermes-agent 的真實原始碼對照。</p>
+    </div>
+
+    <div class="progress-block">
+      <div class="progress-label"><span>課程進度</span><b id="progress-text">0 / 16</b></div>
+      <div class="meter" id="meter"></div>
+    </div>
+
+    <ul class="chnav" id="chnav"></ul>
+
+    <div class="rail-foot">CH.<span id="foot-cur">01</span> / 16 &nbsp;·&nbsp; 專案式學習</div>
+  </nav>
+
+  <main>
+    <div class="wrap" id="content"></div>
+  </main>
+</div>
+
+<script>
+(function(){
+
+var CH = [
+  {n:1, key:"心智模型", title:"什麼是 Harness？", dek:"模型只會推理。是 Harness 把記憶、行動與持續性接上去。", status:"ready"},
+  {n:2, key:"最小迴圈", title:"最小可行迴圈", dek:"一輪對話的解剖：system、messages、一次呼叫、寫回歷史。", status:"ready"},
+  {n:3, key:"工具協定", title:"工具呼叫協定", dek:"模型不會動手。它只會說「我想呼叫這個工具」，執行永遠是 Harness 的責任。", status:"ready"},
+  {n:4, key:"Context 管理", title:"Context 管理與壓縮", dek:"對話會一直長大，但 context window 不會。快取、清除、壓縮三種對策。", status:"ready"},
+  {n:5, key:"記憶系統", title:"記憶系統：自動注入 vs 隨選查詢", dek:"有些筆記要每輪自動出現在模型眼前，有些完整歷史留著、只在需要時才查。從零設計 + hermes-agent 的真實做法。", status:"ready"},
+  {n:6, key:"狀態持久化", title:"狀態持久化：Session 怎麼存", dek:"Harness 什麼時候把東西寫到硬碟？寫在哪裡？用什麼格式？", status:"ready"},
+  {n:7, key:"Sub-agent", title:"Sub-agent 委派架構", dek:"主 Agent 怎麼生出一個子 Agent 去做事，又怎麼把結果拿回來。", status:"ready"},
+  {n:8, key:"工具系統", title:"工具系統與 Provider 抽象層", dek:"工具怎麼被註冊、怎麼被分派給不同情境；模型供應商怎麼被包一層抽象。", status:"ready"},
+  {n:9, key:"Gateway／STT", title:"Gateway 與語音轉文字", dek:"一則語音訊息從錄音到變成模型看得懂的文字，中間發生了什麼事。", status:"ready"},
+  {n:10, key:"整體架構", title:"把所有東西兜起來", dek:"hermes-agent 的完整地圖：模組、資料流、以及東西最終寫在哪裡。", status:"ready"},
+  {n:11, key:"工具與搜尋", title:"工具目錄與 Tool Search", dek:"工具怎麼分類、終端機後端怎麼隔離、文件怎麼被讀懂、工具太多時怎麼辦。", status:"ready"},
+  {n:12, key:"Skills／Curator", title:"Skills 系統與 Curator", dek:"漸進式揭露的知識文件，以及背景維護者怎麼防止它們無限增生。", status:"ready"},
+  {n:13, key:"記憶擴充／情境", title:"記憶擴充層與情境注入", dek:"內建記憶之外還能接什麼、專案規則怎麼被找到、@ 語法怎麼把檔案塞進對話。", status:"ready"},
+  {n:14, key:"Mixture of Agents", title:"Mixture of Agents", dek:"讓好幾個模型的意見匯總成一個回答，同時不打斷 prompt 快取。", status:"ready"},
+  {n:15, key:"個性／外掛生態", title:"個性、外觀與外掛生態", dek:"SOUL.md 怎麼定義身份、外觀跟人格為何是兩件事、外掛系統的同意機制。", status:"ready"},
+  {n:16, key:"LSP", title:"LSP — 語意診斷", dek:"語法正確不等於沒問題。真正的語言伺服器怎麼被接進寫檔案這個動作裡。", status:"ready"}
+];
+
+var QUIZ = {
+  1: [
+    {q:"為什麼這類系統被稱作「harness（挽具）」而不是直接叫「AI」？",
+     opts:["因為模型本身只會推理，需要外部裝置賦予它記憶、行動與持續性","因為 harness 是訓練模型用的工具","因為這是 Anthropic 的產品名稱"],
+     correct:0,
+     explain:"就像挽具讓馬的力量能拉動馬車，harness 讓模型的推理能力能真正讀寫檔案、呼叫 API、記住東西。模型本身不具備這些能力。"},
+    {q:"對 LLM API 送出的請求，本質上是什麼？",
+     opts:["有狀態的連線，伺服器會記得你是誰","無狀態的請求—回應，每次呼叫互不相干","需要先登入才能維持上下文"],
+     correct:1,
+     explain:"每次 API 呼叫都是獨立、無狀態的。「記得上一句話」這件事完全是 Harness 靠重送整個歷史做出來的假象。"},
+    {q:"下列何者不是 Harness 中「Loop」該負責的事？",
+     opts:["組裝訊息歷史送給模型","執行模型要求的工具呼叫","決定模型的權重要怎麼被訓練更新"],
+     correct:2,
+     explain:"權重更新是模型提供者（訓練階段）的事，跟 Harness 無關。Harness 只負責「用」模型，不負責「造」模型。"}
+  ],
+  2: [
+    {q:"為什麼每一輪呼叫都要把完整的對話歷史重新送一次？",
+     opts:["因為 API 本身無狀態，不會記得上一次的對話","因為這樣比較省 token","因為模型要求一定要看到全部歷史才會回答"],
+     correct:0,
+     explain:"呼應第一章：API 無狀態。少送等於讓模型失憶，這也是後面 context 管理要解決的成本問題的根源。"},
+    {q:"system prompt 通常放在什麼位置？",
+     opts:["混在 messages 陣列中間，跟對話輪流交錯","獨立於 messages 之外，整段對話期間維持穩定不變","每一輪都要重新產生不同內容"],
+     correct:1,
+     explain:"system 定義角色與規則，理想上整場對話都不變——這也是後面 prompt caching 能命中的前提：不變的前綴才能被快取。"},
+    {q:"如果對話持續進行、不做任何處理，每輪傳送的 token 數量會怎麼變化？",
+     opts:["保持不變","線性成長，越聊越貴、越聊越慢","自動降到零"],
+     correct:1,
+     explain:"歷史只會累加不會縮減，這正是第四章要處理的問題：快取、清除、壓縮。"}
+  ],
+  3: [
+    {q:"模型自己會執行工具（例如真的去讀一個檔案）嗎？",
+     opts:["會，模型內部有沙箱可以執行程式碼","不會，模型只會回傳「我想呼叫這個工具，參數是這些」，實際執行永遠是 Harness 的責任","只有部分工具模型會自己執行"],
+     correct:1,
+     explain:"模型回傳的是 tool_use 內容區塊（工具名稱＋參數），從來不是執行結果。Harness 收到後才真的去跑那個函式。"},
+    {q:"如果一次回應裡包含 3 個平行的 tool_use，正確做法是？",
+     opts:["依序各自送出 3 個獨立的訊息","平行執行後，把 3 個 tool_result 放進『同一個』訊息裡一起送回","只執行第一個，其餘忽略"],
+     correct:1,
+     explain:"拆成多個訊息回傳會讓模型學到『不要再平行呼叫了』，破壞效率。平行執行、合併回傳才是正確協定。"},
+    {q:"工具執行失敗時，Harness 應該怎麼處理？",
+     opts:["直接不回傳結果，讓模型自己猜發生了什麼事","照樣回傳 tool_result，並標記 is_error: true，讓模型知道失敗且能應對","中斷整個對話，要求使用者重新開始"],
+     correct:1,
+     explain:"失敗也是一種結果。標記 is_error 讓模型能看到失敗訊息並嘗試別的做法，而不是憑空猜測或卡死整條對話。"},
+    {q:"呼叫模型 API 本身失敗（例如收到 429 rate limit），應該用跟工具失敗一樣的方式處理（回傳 is_error 的 tool_result）嗎？",
+     opts:["應該，統一用 is_error 處理最簡單","不應該——API 層失敗連 response 都拿不到，沒有 tool_result 可以回傳，要在 Harness 自己做重試（通常帶指數退避），這是跟對話內容無關的另一層問題","應該，而且要馬上中斷整個對話"],
+     correct:1,
+     explain:"is_error 是說給模型聽的（『這個工具失敗了』）；API 呼叫失敗時模型根本還沒收到任何東西，屬於 Harness 自己要處理的基礎設施問題，做法是重試 + 退避，不是塞一個 tool_result。"}
+  ],
+  4: [
+    {q:"Prompt caching 的本質是什麼？",
+     opts:["把舊的對話內容摘要、縮短","不縮減任何內容，只是讓『沒變過的前綴』重複使用時更省錢更快，是前綴比對命中","把不重要的工具定義刪掉"],
+     correct:1,
+     explain:"Caching 是前綴匹配（prefix match）：前面任何一個 byte 變了，後面全部失效。它不是壓縮技巧，是重複利用技巧。"},
+    {q:"Compaction（壓縮）跟 Context editing（清除）的差別是？",
+     opts:["兩者其實是同一件事","Compaction 會摘要保留語意後取代原文；Context editing 是直接清掉不再需要的內容，不留摘要","Context editing 比較貴，因為要多呼叫一次模型"],
+     correct:1,
+     explain:"Compaction 犧牲細節換取語意連續；Context editing 更粗暴，直接清掉舊的 tool 結果或思考過程，兩者用途不同、可以搭配使用。"},
+    {q:"使用 compaction 時最常見的錯誤是什麼？",
+     opts:["把整個回應存回歷史，導致佔用太多空間","只把回應中的『文字』存回歷史，漏掉了 compaction 區塊本身","呼叫模型的頻率太高"],
+     correct:1,
+     explain:"Compaction 區塊是伺服端用來在下一輪『取代』被壓縮歷史的關鍵資料，只存文字會讓這個機制失效。"},
+    {q:"要清掉一個舊的 tool_result 時，還需要注意什麼？",
+     opts:["沒什麼特別的，直接把那則訊息刪掉就好","要連同它配對的 tool_use 一起處理（一起刪除或用佔位符替換），落單的 tool_use 沒有對應結果會讓下一次請求變成無效請求","只能把整個對話重新開始"],
+     correct:1,
+     explain:"tool_use 和 tool_result 是成對出現的協定，清除時只拿掉一半會破壞這個配對，多數 API 會直接拒絕這種請求。"},
+    {q:"hermes-agent 為什麼要設兩層獨立的壓縮防線，而不是只用一層？",
+     opts:["兩層只是重複保險，沒有實質差異","Gateway 層是 85% 觸發的保底安全網（字元粗估），Agent 層是 50% 觸發的主要壓縮器（真實 token 數）——各自獨立，避免任一層失靈時對話直接因超長被拒絕","一層給付費使用者，一層給免費使用者"],
+     correct:1,
+     explain:"主要壓縮器做的是精細活（結構化摘要），但萬一它被關掉、設錯，或介入太晚，粗略但保底的 85% 防線仍然能兜住，確保對話不會真的爆掉。"},
+    {q:"repo 裡的 trajectory_compressor.py，是不是即時對話中真正在用的壓縮邏輯？",
+     opts:["是，它就是實際運作的 context 壓縮器","不是——它是把 session 轉成 ShareGPT 格式訓練資料、給 batch_runner.py 用的，跟即時壓縮（agent/context_compressor.py）是完全不同的兩件事","是，但只在對話超過 90% 時才啟用"],
+     correct:1,
+     explain:"這是繼 toolsets.py／toolset_distributions.py 之後，repo 裡第二個因命名相近而容易搞混的地方——一個管『真的在跑的對話』，一個只服務離線訓練資料生成。"},
+    {q:"Context Editing（清除）在 hermes-agent 裡是一個需要另外設定、可以獨立開關的機制嗎？",
+     opts:["是，要在 config.yaml 裡額外開啟才會運作","不是——它是壓縮演算法裡最便宜的『第①階段』，只要壓縮器被觸發（50% 或 85% 門檻）就會自動先跑一遍，不用另外設定或手動介入","不是，它跟壓縮完全無關，是另一套獨立系統"],
+     correct:1,
+     explain:"從零設計時把清除跟壓縮分開講，是為了先讓你看懂各自的原理；但實務上它們常常是同一次觸發、同一段程式碼裡發生的——清除是壓縮流程裡最便宜、最先跑的第一步，不是一個要另外決定開關的獨立策略。"}
+  ],
+  5: [
+    {q:"hermes-agent 的 MEMORY.md／USER.md，什麼時候會出現在模型看到的 system prompt 裡？",
+     opts:["每次寫入後立刻更新 prompt 內容","在 session 開始時載入一次的『凍結快照』——當場寫入的新內容通常要等下一個 session（或這個 session 觸發 compaction 重建 system prompt 時）才會出現在 prompt 裡","從不出現在 prompt 裡，只能用 read 工具查"],
+     correct:1,
+     explain:"這是為了 prompt cache 穩定性做的取捨：寫入會立刻存檔，但『快照』只在 session 開始時、或這個 session 中途觸發 compaction 重建 system prompt 時才會重新載入，所以純粹的一般對話輪次寫的東西不會馬上反映在自己眼前的 prompt。"},
+    {q:"session_search 跟 MEMORY.md 最大的差別是？",
+     opts:["session_search 是有限、精選、一定會被塞進 prompt；MEMORY.md 是無限、隨選查詢","MEMORY.md 是有限、精選、固定會被載入的；session_search 是無限量、隨選查詢、零摘要的資料庫全文檢索","兩者其實是同一套機制的兩個名字"],
+     correct:1,
+     explain:"MEMORY.md/USER.md 是『固定會出現在你面前』的精選短箋；session_search 是『你想到才去查』的完整歷史資料庫（SQLite FTS5），不會主動塞進 context。"},
+    {q:"為什麼 MEMORY.md／USER.md 有嚴格的字元上限，而且沒有自動壓縮？",
+     opts:["為了逼迫只留下真正重要的資訊——寫入超過上限時，工具會直接回傳結構化錯誤，要求先整理再重試","純粹是 SQLite 欄位長度的技術限制","為了降低 API 費用"],
+     correct:0,
+     explain:"沒有自動摘要意味著『塞不下就是塞不下』，逼著 agent（或人）主動判斷什麼該留、什麼該砍，而不是無限累積後靠模型自己模糊地摘要掉重要資訊。"}
+  ],
+  6: [
+    {q:"hermes-agent 用什麼機制儲存所有 session 的完整訊息歷史？",
+     opts:["每個 session 各自一個獨立 JSON 檔案","單一 SQLite 資料庫（~/.hermes/state.db，WAL 模式），由 hermes_state.py 的 SessionDB 類別管理","純記憶體快取，程式關掉就消失"],
+     correct:1,
+     explain:"state.db 背後的資料模型 hermes_state.py 本身近 700KB，是全 repo 數一數二大的模組之一，但不是最大的檔案（gateway/run.py、cli.py 等都更大），裡面有 sessions、messages、FTS5 全文索引等多張表。"},
+    {q:"多個程式（gateway + CLI + worktree agent）同時寫入同一個資料庫檔案時，系統怎麼處理衝突？",
+     opts:["直接讓後寫的覆蓋先寫的，不做任何保護","用短逾時＋應用層帶抖動（jitter）重試＋BEGIN IMMEDIATE 交易，失敗就照規則重試","強制同一時間只能有一個程式在執行"],
+     correct:1,
+     explain:"這是典型『多寫入者共用單一 SQLite 檔案』的工程解法：短 timeout 快速失敗、重試帶隨機抖動避免撞期、明確用 BEGIN IMMEDIATE 搶寫鎖、定期做 WAL checkpoint。"},
+    {q:"什麼時候資料會被寫入資料庫？",
+     opts:["只有使用者主動存檔時","在一次 turn 進行中的多個檢查點（例如每次工具呼叫後）就會批次 append（assistant 與 tool 訊息都算），不是只有 session 結束才存","每小時定期批次寫入一次"],
+     correct:1,
+     explain:"持久化其實比『逐輪』更即時：一次 turn 裡的多個檢查點就會把當時累積的新訊息（一次 turn 常見 3–8 則）用一個交易 append_messages_batch() 寫入，不是定期批次也不是只在整個 session 結束時才存檔。"}
+  ],
+  7: [
+    {q:"子 Agent（subagent）預設能看到父 Agent 完整的對話歷史嗎？",
+     opts:["可以，這樣才方便銜接上下文","不行，只拿得到 goal 和 context 兩個字串——官方文件甚至寫著『Subagents Know Nothing』","只能看到最近 5 輪對話"],
+     correct:1,
+     explain:"這是刻意設計：子 Agent 是全新建構的 AIAgent（skip_context_files、skip_memory），只餵它任務需要的東西，避免把父 Agent 的整包歷史複製一份浪費 context。"},
+    {q:"delegate_task 呼叫完成後，回到父 Agent context 裡的是什麼？",
+     opts:["子 Agent 完整的逐字稿（transcript）","只有子 Agent 最終的結構化摘要，完整過程不會回流到父 Agent","什麼都不會回來，要自己去資料庫查"],
+     correct:1,
+     explain:"只有『結論』會進入父層對話，細節留在子 Agent 自己的 session 裡（仍會被寫進同一個 state.db，只是父層 context 不會被灌爆）。"},
+    {q:"為什麼子 Agent 預設不能再呼叫 delegate_task（不能生出『孫子』Agent）？",
+     opts:["技術上做不到，工具沒有實作","避免委派深度失控，預設是扁平的（max_spawn_depth: 1），要 orchestrator 角色並主動調高深度才能開多層"],
+     correct:1,
+     explain:"這是一個防呆邊界：沒有深度限制的委派樹很容易失控增殖。多數子 Agent 是『leaf』角色，只有明確設成 orchestrator 才能繼續往下委派。"}
+  ],
+  8: [
+    {q:"一個新工具要怎麼被系統發現、變成模型可以呼叫的東西？",
+     opts:["要手動加進一份總表清單裡","只要在 tools/ 底下的檔案『頂層』呼叫 registry.register()，discover_builtin_tools() 就會自動用 AST 掃描並匯入該檔案","要重新編譯整個專案"],
+     correct:1,
+     explain:"這是『自我註冊＋自動發現』模式：不用維護一份手動清單，只要照約定的方式呼叫 registry.register()，開機時的 AST 掃描會自己找到它。"},
+    {q:"toolset_distributions.py 是做什麼用的？",
+     opts:["決定執行期哪些工具會出現在模型面前","只給 batch_runner.py 用的機率抽樣器，用來合成訓練資料，跟真正的執行期工具可用性完全無關"],
+     correct:1,
+     explain:"名字很像 toolsets.py，很容易搞混，但用途完全不同——真正決定『這次對話模型看得到哪些工具』的是 toolsets.py 和 model_tools.get_tool_definitions()。"},
+    {q:"hermes-agent 用什麼方式讓『換一家模型供應商』不用重寫整個 agent loop？",
+     opts:["沒有抽象層，每換一家都要重寫核心邏輯","用 runtime_provider.py 把 (provider, model) 解析成 (api_mode, 憑證)，再由對應的 adapter 把不同廠商的請求／回應格式轉換成統一的內部訊息格式"],
+     correct:1,
+     explain:"chat_completions／codex_responses／anthropic_messages／bedrock_converse 等多種 API 模式最後都會收斂成同一種內部的 OpenAI 風格訊息字典，loop 本身完全不用管背後是哪家供應商。"}
+  ],
+  9: [
+    {q:"語音訊息從下載到變成文字進入對話，正確的順序是？",
+     opts:["下載音檔 → 快取到磁碟 → 依設定選擇 STT provider 轉錄 → 轉錄文字包裝後 prepend 到使用者訊息文字裡","直接把音檔位元組送進 LLM，讓模型自己『聽』","只存在記憶體，從不落地成檔案"],
+     correct:0,
+     explain:"音檔會先落地快取（$HERMES_HOME/cache/audio/），再交給設定好的 STT provider 轉錄，轉錄結果最後是以純文字形式併入使用者那一輪的訊息內容。"},
+    {q:"gateway 收到一則訊息時，為什麼會有『兩層防護』檢查，而不是只有一層？",
+     opts:["純粹是重複的保險，沒有實質差異","Level 1 在 platform adapter 端擋住同一 session 還在跑時的重複訊息；Level 2 在 GatewayRunner 端攔截控制指令（如 /stop），並針對該 session（不是全域）做執行狀態檢查，兩者責任不同"],
+     correct:1,
+     explain:"兩層各管一塊：一層管『這個對話是不是已經有訊息在處理中』，另一層管『這是不是一句要立刻插隊處理的控制指令』，合在一起才能避免競態(race condition)又不犧牲即時中斷的能力。"},
+    {q:"語音辨識完的文字，是怎麼『進入』對話讓模型看到的？",
+     opts:["存成獨立的資料庫欄位，模型要主動查詢才看得到","被包成引號字串，直接 prepend 到使用者當輪訊息的文字內容裡——模型看到的就是一段普通文字","用專屬的 audio content block，把音檔本身直接送給模型"],
+     correct:1,
+     explain:"轉錄結果並非特殊格式，只是一段被引號包起來、接在使用者訊息前面的普通文字——這也解釋了為什麼轉錄語言設定（STT provider 的 language 參數）會直接決定模型『讀到』的是中文還是別的語言。"}
+  ],
+  10: [
+    {q:"run_agent.py 裡的 AIAgent.run_conversation()，實際上做了什麼？",
+     opts:["就是整個對話迴圈的本體，所有邏輯都在裡面","只是一個轉發器（forwarder）——真正 8,000 多行的迴圈邏輯在 agent/conversation_loop.py 裡"],
+     correct:1,
+     explain:"這是讀這個 repo 時很容易踩到的陷阱：只看 run_agent.py 會以為那就是全部，但它現在只負責轉發，核心邏輯已經搬到 agent/conversation_loop.py。"},
+    {q:"一個 session 的訊息歷史被壓縮（compaction）觸發時，預設會發生什麼事？",
+     opts:["換成一個全新的 session id，舊的 session 整個歸檔封存","用 compression.in_place: true（預設值）原地改寫『同一個』session id，舊輪次被軟性封存（active=0, compacted=1）但仍可被搜尋到"],
+     correct:1,
+     explain:"這是相對新的設計，用來消除『壓縮後 session id 換掉，導致某些跨 session 狀態跟丟』的整類 bug；舊資料沒有被刪除，只是標記為非活躍。"},
+    {q:"下列哪一個『不是』hermes-agent 實際會把東西寫進磁碟的位置？",
+     opts:["~/.hermes/state.db（session／訊息歷史）","~/.hermes/memories/MEMORY.md（agent 的長期筆記）","模型本身的權重檔案"],
+     correct:2,
+     explain:"呼應第一章：Harness 從不碰模型的權重。它只負責管理『自己』這一側的狀態——對話紀錄、記憶檔案、快取的音檔、委派任務的日誌——模型永遠是外部呼叫的黑盒子。"},
+    {q:"為什麼『所有訊息都存進了 state.db』不等於『系統出問題時看得出來哪裡出錯』？",
+     opts:["完全等於，資料庫夠完整就不需要別的東西","資料庫是事後可查的完整紀錄，但缺少結構化日誌、追蹤（tracing）、指標（metrics）這些『運行中就看得見』的機制——這正是可觀測性要補的部分","只要資料庫夠大，這個問題就不存在"],
+     correct:1,
+     explain:"state.db 和 delegation log 回答的是『發生過什麼』；日誌、追蹤、指標回答的是『現在正在發生什麼、是不是出問題了』——兩者互補，光有前者無法即時發現問題。"}
+  ],
+  11: [
+    {q:"掃描版 PDF（頁面是圖片、沒有文字層）用 read_file 轉換時會發生什麼事？",
+     opts:["直接報錯拒絕轉換","安靜地轉換成空內容——因為轉換只讀『文字層』，圖片頁根本沒有文字層可讀","自動觸發 OCR，把圖片轉成文字"],
+     correct:1,
+     explain:"這正是危險的地方：不會報錯，只會悄悄轉出空白（標題有內容、內文卻是空的）。系統會在超過 20% 頁面或 10 頁以上無文字時主動加警告，並標出確切的頁碼缺口。"},
+    {q:"Tool Search 的三個橋接工具，正確的呼叫順序與分工是？",
+     opts:["tool_call → tool_search → tool_describe，缺一不可，順序固定","tool_search（找候選）→ tool_describe（載入完整 schema）→ tool_call（真正呼叫），但看到名字也可以跳過 search 直接 describe","三個是同一件事的不同名字，隨便呼叫哪個都一樣"],
+     correct:1,
+     explain:"三者是漸進式揭露的三個階段：先搜尋候選、再載入詳細參數、最後才真正呼叫。如果模型已經從『目錄清單』看到確切工具名，可以省略 tool_search 直接 tool_describe。"},
+    {q:"為什麼 Tool Search 存在——它解決的核心問題是什麼？",
+     opts:["讓模型呼叫工具的速度變快","當 MCP／外掛工具多到一定程度時，把它們的完整 JSON schema 全部塞進每一輪請求會佔掉大量 context——Tool Search 讓大部分工具改成『隨選載入』","增加工具呼叫的安全性檢查"],
+     correct:1,
+     explain:"某些 MCP 伺服器（例如文中提到的 Cloudflare）光是工具名稱清單就要 3 萬多 token。把這些 schema 延後到真正需要時才載入，才不會讓每一輪對話都被工具定義佔滿。"},
+    {q:"Docker terminal backend 的持久化模型是什麼？",
+     opts:["每次工具呼叫都會啟動一個全新的容器，用完即丟","啟動時建立『一個』長駐容器，之後所有 terminal／file／execute_code 呼叫都透過 docker exec 進同一個容器，直到程式關閉","每個 session 各自有獨立容器，但同一個 session 內每次呼叫也是新容器"],
+     correct:1,
+     explain:"這讓它表現得更像一台持久化的沙箱 VM：裝過的套件、切換過的工作目錄，會一路帶到下一次呼叫、下一個 /reset，甚至 delegate_task 產生的子 Agent。"}
+  ],
+  12: [
+    {q:"Skills 的漸進式揭露分成幾個層級，各自載入什麼？",
+     opts:["只有一層：一次載入所有 skill 的完整內容","Level 0（清單：名稱＋描述）→ Level 1（完整內容）→ Level 2（特定參考檔案），模型只在真正需要時才往下一層載入","兩層：先列出名稱，然後全部一次載入"],
+     correct:1,
+     explain:"這跟第 4 章 context 管理的精神一致：不是所有東西都得在一開始就塞進 context，用得到才載入，用不到的成本趨近於零。"},
+    {q:"Curator（背景維護者）的兩個階段分別是什麼，為什麼分開？",
+     opts:["只有一個階段：定期刪除沒用的 skill","(1) 決定性的自動轉換（active→stale→archived，免費、預設開）與 (2) LLM 整併審查（consolidate，會花 aux-model token、預設關閉），分開是因為兩者成本與風險完全不同","兩階段都需要人工逐一核准才會執行"],
+     correct:1,
+     explain:"自動轉換零成本、只是狀態標記，可以放心常開；LLM 整併會真的改動你的 skill 庫（合併、改寫），所以是需要主動選擇加入的進階功能。"},
+    {q:"一個 skill 要被 Curator 判定為『agent-created』（因此進入它的管轄範圍），需要滿足什麼條件？",
+     opts:["只要是 .md 檔案格式的 skill 就算","必須不在 bundled 清單、不在 hub 安裝清單，而且 .usage.json 裡明確標記 created_by:agent——這個標記目前只有『背景自我改進審查』寫入的 skill 才有，使用者當場請 agent 建立的 skill 不算","只要 agent 曾經修改過這個 skill 就算"],
+     correct:1,
+     explain:"這是刻意設計的窄範圍：你當場要求 agent 建立的 skill 被視為『你的』東西，Curator 不會主動去動它，除非你用 `curator adopt` 明確把它交出去。"},
+    {q:"Skill 的 pin（釘選）機制保護的範圍是什麼？",
+     opts:["完全鎖死，連 agent 的 patch／edit 都無法再修改內容","只擋刪除——Curator 的自動歸檔和 agent 的 skill_manage(delete) 都會被擋下來，但 patch／edit 仍然可以正常進行","只在 Curator 執行 LLM 整併時才生效，其他時候沒作用"],
+     correct:1,
+     explain:"這個不對稱是刻意的：你想保護一個 skill 不被誤刪，但通常還是希望它的內容能持續被改進、修正錯誤——pin 只鎖『存在與否』，不鎖『內容能不能變好』。"}
+  ],
+  13: [
+    {q:"外部 memory provider（如 Honcho、Mem0）跟內建的 MEMORY.md／USER.md 是什麼關係？",
+     opts:["外部 provider 啟用後會取代內建記憶，兩者互斥","兩者疊加——內建記憶永遠運作，外部 provider 是額外加上去的一層，而且同時間只能選一個外部 provider 啟用","外部 provider 只是內建記憶的備份機制"],
+     correct:1,
+     explain:"這呼應第 5 章的重點：內建的『精選、有上限、自動注入』機制，跟外部 provider 的『更複雜的向量式/圖譜式記憶』是可以並存的兩層，不是二選一的替代關係。"},
+    {q:"Honcho 的 contextCadence 和 dialecticCadence 兩個設定分別控制什麼？",
+     opts:["兩個是同一件事的別名，設一個就好","contextCadence 控制『基礎上下文』（session 摘要＋使用者側寫）多久刷新一次；dialecticCadence 控制『LLM 推理層』多久觸發一次——兩者互相獨立，可以分開調整","兩個都只影響費用，不影響行為"],
+     correct:1,
+     explain:"這是文件裡特別強調的『三個正交旋鈕』之一：你可以每輪都刷新基礎上下文，但推理層每 5 輪才跑一次深度分析——分開控制才能同時兼顧新鮮度和成本。"},
+    {q:"AGENTS.md 在一個 monorepo 裡如果有多層（git root、中間目錄、工作目錄各一份），Hermes 怎麼處理？",
+     opts:["只載入工作目錄那一份，其他忽略","把從 git root 到工作目錄的整條鏈合併載入，越深層的檔案排在越後面、代表優先權越高，而不是只挑一個","隨機挑一份載入"],
+     correct:1,
+     explain:"這樣專案層級的通則和子目錄的特殊規則可以並存——更具體的規則放在提示詞後段，天然地擁有『後蓋前』的優先權直覺。"},
+    {q:"用 @file: 語法引用的內容如果會讓 context 用量超過模型 context 長度的 50%，會發生什麼事？",
+     opts:["照樣展開，只是會變慢","展開被直接拒絕，原始訊息維持不變——這是硬性上限；25% 是軟性上限，只會加警告但照樣展開","自動幫你截斷成 50% 以內"],
+     correct:1,
+     explain:"25%／50% 是兩道不同嚴重程度的防線：軟上限只是提醒，硬上限則是直接拒絕展開，避免一次引用就把整個對話的 context 預算吃光。"}
+  ],
+  14: [
+    {q:"在 Mixture of Agents 裡，真正會執行工具呼叫、寫進 assistant 回應的是哪一個角色？",
+     opts:["每一個 reference model 都會各自執行","只有 aggregator——reference models 完全不帶工具 schema，只提供文字分析當作 aggregator 的私有參考資料","reference models 和 aggregator 都會，結果會合併"],
+     correct:1,
+     explain:"reference models 的呼叫是『輕量顧問』：不帶工具、不帶 Hermes 的系統提示（換上一段固定的顧問角色提示），只回一段分析文字。真正代表整個 Hermes 迴圈行動的，是收到這些分析後才出手的 aggregator。"},
+    {q:"為什麼 MoA 不會打斷主對話的 prompt 快取？",
+     opts:["因為 MoA 完全不使用快取機制","因為 reference 輸出是附加在『最新這一輪使用者訊息的尾端』，落在穩定前綴（system prompt＋歷史）之後，不會讓前面已經快取的內容失效","因為每次都強制重新整個對話"],
+     correct:1,
+     explain:"快取是前綴比對——只要穩定的部分沒被改動，插在最尾端的新內容不會波及前面已經快取住的所有東西，這跟每輪新增一則使用者訊息的效果是一樣的。"},
+    {q:"fanout 設成 per_iteration 相比預設的 user_turn，付出的代價是什麼？",
+     opts:["沒有任何額外代價，純粹是更好的選項","reference models 會在『每一次工具呼叫迭代』都重跑一次，advisor 的延遲與花費會隨著一輪對話裡的工具呼叫次數等比例增加","答案品質反而會變差"],
+     correct:1,
+     explain:"per_iteration 換來的是『意見永遠跟上最新的工具結果』，但因為 turn 的總耗時取決於最慢的那個 advisor，跑越多次代價就越高——這正是為什麼預設改成了更省的 user_turn。"}
+  ],
+  15: [
+    {q:"SOUL.md 為什麼只從 HERMES_HOME 載入，完全不看你目前的工作目錄？",
+     opts:["純粹是技術限制，做不到讀工作目錄","刻意設計：人格屬於『這個 Hermes 實例』本身，不屬於你剛好在哪個專案資料夾下啟動——這樣人格不會因為換目錄而飄移，行為可預期","因為工作目錄下的檔案通常太大"],
+     correct:1,
+     explain:"如果 SOUL.md 是照工作目錄找的，你的 Hermes 就會在不同專案間表現出不一樣的『性格』，這違背了『這是同一個助理』的直覺。專案層級的規則交給 AGENTS.md 負責就好。"},
+    {q:"一般（third-party）plugin 和『bundled 平台／後端』plugin，預設啟用狀態一樣嗎？",
+     opts:["一樣，全部預設關閉，都要手動加進 plugins.enabled","不一樣——bundled 的『隨開即用』基礎設施（平台轉接器、預設 image-gen 後端等）會自動載入；第三方一般 plugin 則預設關閉，必須明確加進 plugins.enabled 才會真的執行任何程式碼","不一樣，全部預設開啟，要手動關閉"],
+     correct:1,
+     explain:"這條分界線很刻意：『被 Hermes 自己收錄、隨裝即用』的基礎設施不應該因為預設關閉而讓基本功能壞掉；但任意第三方程式碼在沒有你明確同意前不該執行。"},
+    {q:"Plugin 的 capability 宣告與同意機制，解決的是什麼問題？它不解決什麼？",
+     opts:["它是完整的沙箱隔離，惡意 plugin 完全無法造成傷害","它是一層『同意與稽核』機制——讓你知道並同意一個 plugin 要求什麼特權；但 plugin 是跟主程式同進程執行的一般 Python，不是沙箱，惡意作者仍可能繞過這些檢查點","它只是裝飾性的 UI，實際上沒有任何強制力"],
+     correct:1,
+     explain:"文件講得很直白：授予一個能力是『對這個作者的信任聲明』，不是程式碼審查，更不是隔離保證。只安裝你信任來源的 plugin，才是真正的防線。"}
+  ],
+  16: [
+    {q:"LSP 語意診斷為什麼要 gate 在『是否在 git 專案內』這個條件上？",
+     opts:["技術上只有 git 專案才能安裝語言伺服器","避免在沒有明確專案結構的情境（例如訊息平台的 gateway，工作目錄通常是使用者的家目錄）白白啟動語言伺服器分析一堆不相關的檔案","是為了強制使用者一定要用 git"],
+     correct:1,
+     explain:"沒有專案根目錄的情境下，語言伺服器分析也沒有意義——這時候會自動 fallback 回純語法檢查，不會浪費資源啟動一整套語言伺服器。"},
+    {q:"『診斷結果是 freshness-gated』是什麼意思？",
+     opts:["只顯示最新的 10 條錯誤","只有語言伺服器針對『這次編輯後的內容』重新產生的診斷才算數；如果伺服器還沒跟上，寧可回報『沒有資料』，也不會把編輯前的舊錯誤誤報成這次造成的","伺服器每次都會重新掃描整個專案才回報"],
+     correct:1,
+     explain:"這個設計避免了一個很誤導人的情境：明明是這次編輯之前就存在的錯誤，卻被顯示成『這次編輯引入的問題』。寧可暫時沒資料，也不要給錯誤的歸因。"},
+    {q:"write_file／patch 回傳結果裡的 lint 和 lsp_diagnostics 兩個欄位，分別代表什麼？",
+     opts:["兩個是同一件事，只是新舊命名","lint 是微秒級的純語法檢查（例如 ast.parse）；lsp_diagnostics 是真正語言伺服器產生的語意層診斷（型別錯誤、未定義名稱等）——兩個管道各自獨立","lint 檢查前端，lsp_diagnostics 檢查後端"],
+     correct:1,
+     explain:"一個檔案完全可能『語法乾淨（lint: ok）但語意上有問題（lsp_diagnostics 非空）』——例如變數名稱打錯字，語法上完全合法，只有真正理解型別的語言伺服器才抓得出來。"}
+  ]
+};
+
+var STORE_KEY = "harness-course-progress-v1";
+function loadProgress(){
+  try{ return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }catch(e){ return {}; }
+}
+function saveProgress(p){
+  try{ localStorage.setItem(STORE_KEY, JSON.stringify(p)); }catch(e){}
+}
+var progress = loadProgress();
+var active = 1;
+for (var i=1;i<=16;i++){ if(progress[i]){ active = Math.min(i+1,16); } }
+
+function chapterState(n){
+  var chDef = CH[n-1];
+  if (chDef.status === "soon") return progress[n] ? "passed" : "soon";
+  if (progress[n]) return "passed";
+  if (n === active) return "active";
+  if (n === 1 || progress[n-1]) return "unlocked";
+  return "locked";
+}
+
+function renderNav(){
+  var ul = document.getElementById('chnav');
+  ul.innerHTML = "";
+  var passedCount = 0;
+  CH.forEach(function(c){ if(progress[c.n]) passedCount++; });
+  document.getElementById('progress-text').textContent = passedCount + " / 16";
+  var meter = document.getElementById('meter');
+  meter.innerHTML = "";
+  for (var i=1;i<=16;i++){
+    var seg = document.createElement('i');
+    if (progress[i]) seg.className = "on";
+    meter.appendChild(seg);
+  }
+
+  CH.forEach(function(c){
+    var state = chapterState(c.n);
+    var li = document.createElement('li');
+    li.setAttribute('data-state', state === "active" ? "active" : (state === "passed" ? "passed" : (state === "soon" ? "soon" : (state === "locked" ? "locked" : ""))));
+    var btn = document.createElement('button');
+    btn.className = "chnode";
+    var num = String(c.n).padStart(2,'0');
+    btn.innerHTML = '<span class="dot">'+ (state==="passed" ? "" : num) +'</span><span class="label"><span class="t">'+c.title+'</span><span class="k">'+ (state==="soon" ? "準備中" : c.key) +'</span></span>';
+    if (state === "locked"){
+      btn.setAttribute('aria-disabled','true');
+    } else {
+      btn.addEventListener('click', function(n){ return function(){ goTo(n); }; }(c.n));
+    }
+    li.appendChild(btn);
+    ul.appendChild(li);
+  });
+}
+
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function renderQuiz(n){
+  var qs = QUIZ[n];
+  if (!qs) return "";
+  var html = '<div class="quiz" data-chapter="'+n+'">';
+  html += '<div class="quiz-head"><h3>小測驗</h3><span class="hint">全部答對才能解鎖下一章</span></div>';
+  qs.forEach(function(q, qi){
+    html += '<div class="quiz-q" data-qi="'+qi+'" data-correct="'+q.correct+'">';
+    html += '<p class="q-text">Q'+(qi+1)+'. '+esc(q.q)+'</p>';
+    q.opts.forEach(function(opt, oi){
+      html += '<label class="opt"><input type="radio" name="q-'+n+'-'+qi+'" value="'+oi+'"> <span>'+esc(opt)+'</span></label>';
+    });
+    html += '<div class="q-feedback" hidden></div>';
+    html += '<div class="explain" hidden data-text="'+esc(q.explain)+'"></div>';
+    html += '</div>';
+  });
+  html += '<div class="quiz-actions"><button class="btn" data-action="check">檢查答案</button><button class="btn ghost" data-action="retry" hidden>重新測驗</button><span class="quiz-msg" role="status"></span></div>';
+  html += '</div>';
+  return html;
+}
+
+function bindQuiz(root, n){
+  var quiz = root.querySelector('.quiz');
+  if (!quiz) return;
+  var checkBtn = quiz.querySelector('[data-action="check"]');
+  var retryBtn = quiz.querySelector('[data-action="retry"]');
+  var msg = quiz.querySelector('.quiz-msg');
+
+  checkBtn.addEventListener('click', function(){
+    var qs = quiz.querySelectorAll('.quiz-q');
+    var allAnswered = true, allCorrect = true;
+    qs.forEach(function(qEl){
+      var correct = qEl.getAttribute('data-correct');
+      var checked = qEl.querySelector('input[type=radio]:checked');
+      var fb = qEl.querySelector('.q-feedback');
+      var explainText = qEl.querySelector('.explain').getAttribute('data-text');
+      if (!checked){ allAnswered = false; return; }
+      fb.hidden = false;
+      if (checked.value === correct){
+        fb.className = "q-feedback correct";
+        fb.textContent = "✓ 答對了 — " + explainText;
+      } else {
+        fb.className = "q-feedback wrong";
+        fb.textContent = "✗ 再想想 — " + explainText;
+        allCorrect = false;
+      }
+    });
+    if (!allAnswered){
+      msg.className = "quiz-msg bad";
+      msg.textContent = "還有題目沒作答喔。";
+      return;
+    }
+    if (allCorrect){
+      progress[n] = true;
+      saveProgress(progress);
+      msg.className = "quiz-msg ok celebrate";
+      msg.textContent = "全部答對！本章已通過 — 下一章解鎖了。";
+      checkBtn.hidden = true;
+      renderNav();
+      var nextBtn = root.querySelector('[data-nav="next"]');
+      if (nextBtn && n < 16) nextBtn.disabled = false;
+    } else {
+      msg.className = "quiz-msg bad";
+      msg.textContent = "有答錯的題目，看看上面的說明，再試一次。";
+      retryBtn.hidden = false;
+    }
+  });
+
+  retryBtn.addEventListener('click', function(){
+    quiz.querySelectorAll('input[type=radio]').forEach(function(r){ r.checked = false; });
+    quiz.querySelectorAll('.q-feedback').forEach(function(f){ f.hidden = true; });
+    msg.textContent = "";
+    checkBtn.hidden = false;
+    retryBtn.hidden = true;
+  });
+}
+
+function soonPanel(c){
+  return '<div class="soon-panel"><div class="tag">建置中</div><h4>這一章正在對照 hermes-agent 的原始碼撰寫</h4><p>'+esc(c.dek)+' 這一節需要先拆解真實 repo 的模組（例如 hermes_state*.py、tools/voice_mode.py、gateway/、subagent 相關程式碼），確認檔案路徑與實際行為後才會補上，避免亂編。</p></div>';
+}
+
+var BODY = {}; // filled below per chapter
+
+function render(){
+  renderNav();
+  var c = CH[active-1];
+  var root = document.getElementById('content');
+  var num = String(c.n).padStart(2,'0');
+  var bodyHtml = c.status === "soon" && !BODY[c.n] ? soonPanel(c) : (BODY[c.n] || soonPanel(c));
+  var quizHtml = c.status === "soon" ? "" : renderQuiz(c.n);
+
+  var prevDisabled = c.n <= 1 ? 'disabled' : '';
+  var nextState = chapterState(c.n+1 <= 16 ? c.n+1 : 16);
+  var nextDisabled = (c.n >= 16 || (nextState === 'locked')) ? 'disabled' : '';
+
+  root.innerHTML =
+    '<div class="ch-head"><div class="eyebrow"><span class="num">CH.'+num+'</span> HARNESS 拆裝手冊</div>' +
+    '<h2>'+esc(c.title)+'</h2><p class="dek">'+esc(c.dek)+'</p></div>' +
+    bodyHtml + quizHtml +
+    '<div class="chapter-nav">' +
+      '<button class="btn ghost" data-nav="prev" '+prevDisabled+'>← 上一章</button>' +
+      '<button class="btn ghost" data-nav="next" '+nextDisabled+'>下一章 →</button>' +
+    '</div>';
+
+  bindQuiz(root, c.n);
+  Array.prototype.forEach.call(root.querySelectorAll('[data-goto]'), function(el){
+    el.addEventListener('click', function(){ goTo(parseInt(el.getAttribute('data-goto'), 10)); });
+  });
+  root.querySelector('[data-nav="prev"]').addEventListener('click', function(){ if(active>1){ active--; render(); window.scrollTo(0,0);} });
+  root.querySelector('[data-nav="next"]').addEventListener('click', function(){ if(active<16 && chapterState(active+1)!=='locked'){ active++; render(); window.scrollTo(0,0);} });
+
+  document.getElementById('foot-cur').textContent = num;
+}
+
+function goTo(n){
+  var state = chapterState(n);
+  if (state === 'locked') return;
+  active = n;
+  render();
+  window.scrollTo(0,0);
+}
+
+/* ================= chapter content ================= */
+
+BODY[1] =
+'<div class="section">' +
+  '<h3>三個角色</h3>' +
+  '<p>把一個 Harness 拆開，永遠只有三個角色在互動：</p>' +
+  '<ul>' +
+    '<li><strong>Model</strong> — 推理引擎。給它一段文字，它回傳一段文字（或「我想呼叫某個工具」）。它沒有記憶、沒有雙手、也不知道現在幾點。</li>' +
+    '<li><strong>Tools</strong> — 模型能「請求」使用的外部能力：讀寫檔案、查資料庫、打 API、執行程式碼。</li>' +
+    '<li><strong>Loop</strong> — 協調者。組裝要送給模型的內容、把模型的請求轉成真正的動作、把動作的結果餵回去，如此反覆直到任務完成。</li>' +
+  '</ul>' +
+  '<div class="diagram"><svg viewBox="0 0 620 220" width="100%" height="220" role="img" aria-label="Model、Loop、Tools 三角關係">' +
+    '<rect class="dg-box accent" x="250" y="20" width="120" height="56" rx="8"/>' +
+    '<text class="dg-text" x="310" y="53" text-anchor="middle" font-weight="600">Model</text>' +
+    '<rect class="dg-box" x="250" y="150" width="120" height="56" rx="8"/>' +
+    '<text class="dg-text" x="310" y="183" text-anchor="middle" font-weight="600">Loop</text>' +
+    '<rect class="dg-box" x="470" y="150" width="120" height="56" rx="8"/>' +
+    '<text class="dg-text" x="530" y="183" text-anchor="middle" font-weight="600">Tools</text>' +
+    '<path class="dg-line" d="M310 76 L310 150" marker-end="url(#arr)"/>' +
+    '<path class="dg-line" d="M370 190 L470 178" marker-end="url(#arr)"/>' +
+    '<path class="dg-line" d="M470 190 L370 202" marker-end="url(#arr)"/>' +
+    '<text class="dg-mono" x="322" y="118" text-anchor="start">送出 / 回應</text>' +
+    '<text class="dg-mono" x="392" y="168" text-anchor="start">呼叫工具</text>' +
+    '<text class="dg-mono" x="392" y="216" text-anchor="start">回傳結果</text>' +
+    '<defs><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path class="dg-arrow" d="M0,0 L6,3 L0,6 z"/></marker></defs>' +
+  '</svg><div class="cap">Model 不會直接碰到 Tools —— 中間永遠隔著 Loop。</div></div>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>一個常被忽略的事實：模型是無狀態的</h3>' +
+  '<p>每一次呼叫模型 API，都是一個全新、獨立的請求。模型不會「記得」你上一句說了什麼——除非 Harness 把完整的對話歷史重新送一次。所謂「跟 AI 聊天」的連續感，是 Harness 靠重複傳送歷史製造出來的假象，不是模型與生俱來的能力。</p>' +
+  '<div class="callout"><span class="k">為什麼要在乎這件事</span><p>這個事實決定了後面所有章節的設計：訊息怎麼組裝（第 2 章）、對話要花多少錢和多久會爆（第 4 章）、要記住的事情要另外存起來（第 5、6 章）——全部都是為了彌補「模型本身沒有記憶」這個先天限制。</p></div>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>Harness 不是一個框架，是一種責任分工</h3>' +
+  '<p>市面上的「Agent SDK」「Agent Harness」名字五花八門，但骨架都一樣：<strong>模型負責決定要做什麼，Harness 負責讓它真的能做到，並且守住邊界</strong>（不該做的事不能做、失敗要能重試、成本要能控制）。接下來的章節，我們會一塊一塊把這個骨架組起來（第 2–4 章），對照 hermes-agent 這個真實系統看核心迴圈怎麼落地（第 5–10 章），最後把它完整的功能版圖也攤開來看（第 11–16 章）。</p>' +
+'</div>';
+
+BODY[2] =
+'<div class="section">' +
+  '<h3>一輪對話的解剖</h3>' +
+  '<p>丟給模型的每一次請求，基本上由三塊組成：</p>' +
+  '<div class="table-wrap"><table><tr><th>欄位</th><th>內容</th><th>隨對話怎麼變</th></tr>' +
+    '<tr><td class="mono">system</td><td>角色設定與規則</td><td>理想上整場對話期間保持不變</td></tr>' +
+    '<tr><td class="mono">messages</td><td>user／assistant 交替的歷史紀錄陣列</td><td>每輪都 append，只會愈聊愈長</td></tr>' +
+    '<tr><td>一次 API 呼叫</td><td>把上面兩者送出去，換回模型的一段回應</td><td>每一輪都要重新呼叫一次</td></tr>' +
+  '</table></div>' +
+'</div>' +
+'<div class="section">' +
+  '<h4>一輪的五個步驟</h4>' +
+  '<div class="diagram"><svg viewBox="0 0 640 170" width="100%" height="170" role="img" aria-label="一輪對話的五個步驟">' +
+    '<rect class="dg-box" x="10" y="60" width="105" height="46" rx="8"/><text class="dg-text" x="62" y="88" text-anchor="middle" font-size="11">① 使用者輸入</text>' +
+    '<rect class="dg-box" x="145" y="60" width="105" height="46" rx="8"/><text class="dg-text" x="197" y="88" text-anchor="middle" font-size="11">② append 進歷史</text>' +
+    '<rect class="dg-box accent" x="280" y="60" width="105" height="46" rx="8"/><text class="dg-text" x="332" y="88" text-anchor="middle" font-size="11">③ 送出 API 呼叫</text>' +
+    '<rect class="dg-box" x="415" y="60" width="105" height="46" rx="8"/><text class="dg-text" x="467" y="88" text-anchor="middle" font-size="11">④ 取出回應文字</text>' +
+    '<rect class="dg-box" x="415" y="10" width="105" height="36" rx="8"/><text class="dg-text" x="467" y="32" text-anchor="middle" font-size="11">⑤ append 回歷史</text>' +
+    '<path class="dg-line" d="M115 83 L145 83" marker-end="url(#arr2)"/>' +
+    '<path class="dg-line" d="M250 83 L280 83" marker-end="url(#arr2)"/>' +
+    '<path class="dg-line" d="M385 83 L415 83" marker-end="url(#arr2)"/>' +
+    '<path class="dg-line" d="M467 60 L467 46" marker-end="url(#arr2)"/>' +
+    '<path class="dg-line" d="M415 28 L250 28 L250 60" marker-end="url(#arr2)"/>' +
+    '<text class="dg-mono" x="330" y="130" text-anchor="middle" font-size="10">⑤ 完成後，下一句使用者輸入回到②繼續累積歷史</text>' +
+    '<defs><marker id="arr2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path class="dg-arrow" d="M0,0 L6,3 L0,6 z"/></marker></defs>' +
+  '</svg><div class="cap">最小可行迴圈：五個步驟，還沒有任何工具、記憶系統或持久化。</div></div>' +
+  '<div class="callout"><span class="k">重點</span><p>光是這五步，就已經是一個能運作的對話迴圈了——只是每次都要把 <span class="mono">messages</span> 整包重送，這正是下一節要付出的代價。這裡④取出的回應文字，為了先讓骨架好懂而簡化成一段純字串；第 3 章一旦接上工具，assistant 這一側實際存的內容永遠是「區塊陣列」（可能是一段文字、也可能是一個工具呼叫請求），不再是單純字串——那裡會把完整形狀補上。</p></div>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>代價：對話越長，每一輪越貴</h3>' +
+  '<p>因為 API 無狀態，<span class="mono">messages</span> 只會愈變愈長，從不縮小。第 10 輪對話要重送前面 9 輪的全部內容，才能讓模型「記得」自己剛才說過什麼。這個代價在對話短的時候不明顯，但在長時間運作的 Agent（例如持續執行任務數十輪）裡會迅速失控——這就是第 4 章 context 管理要解決的問題。</p>' +
+'</div>' +
+'<div class="section">' +
+  '<h4>進階：為什麼很多 Harness 不會等一整段回應生完</h4>' +
+  '<p>上面五步驟裡的③是「送出去、整個等回應生完、拿到完整文字」的阻塞式呼叫。實際產品幾乎都改用<strong>串流（streaming）</strong>：伺服器一邊生成一邊把小片段（delta）陸續送過來，Harness 收到多少就顯示多少，使用者不用整段生完才看到第一個字，體感延遲大幅降低。</p>' +
+  '<p>串流會讓「組裝回應」這件事變得麻煩一點：文字是一個字一個字（或一小段一小段）疊上去的，工具呼叫的 JSON 參數也是一個個 fragment 陸續送來、要自己緩衝到收完整段才能解析——不能像上面的阻塞式呼叫一樣，假設回應一次到手就是完整的。第 3 章之後的工具協定，不管是阻塞式還是串流式收到的，最終組裝出來的內容形狀是一樣的，只是「拿到手」的過程不同。</p>' +
+'</div>';
+
+BODY[3] =
+'<div class="section">' +
+  '<h3>工具是一份「能力說明書」，不是一段可執行的程式碼</h3>' +
+  '<p>你交給模型的「工具」，其實只是一份 JSON 格式的說明書：工具叫什麼名字、要做什麼、需要哪些參數。模型看到這份說明書後，能做的最多就是說「我想呼叫這個工具，參數是這些」——它自己完全沒有能力真的去執行。</p>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>完整流程</h3>' +
+  '<div class="diagram"><svg viewBox="0 0 640 260" width="100%" height="260" role="img" aria-label="工具呼叫時序圖">' +
+    '<text class="dg-mono" x="70" y="24">Harness</text>' +
+    '<text class="dg-mono" x="330" y="24">Model</text>' +
+    '<line class="dg-line" x1="70" y1="34" x2="70" y2="240"/>' +
+    '<line class="dg-line" x1="330" y1="34" x2="330" y2="240"/>' +
+    '<path class="dg-line" d="M70 60 L330 60" marker-end="url(#arr3)"/>' +
+    '<text class="dg-text" x="90" y="52">① 送出 messages + tools schema</text>' +
+    '<path class="dg-line" d="M330 100 L70 100" marker-end="url(#arr3)"/>' +
+    '<text class="dg-text" x="90" y="92">② stop_reason="tool_use"（附 name + input）</text>' +
+    '<rect class="dg-box accent" x="20" y="120" width="100" height="34" rx="6"/>' +
+    '<text class="dg-text" x="70" y="141" text-anchor="middle" font-size="11">③ 本地執行工具</text>' +
+    '<path class="dg-line" d="M70 170 L330 170" marker-end="url(#arr3)"/>' +
+    '<text class="dg-text" x="90" y="162">④ 回傳 tool_result（同一個訊息）</text>' +
+    '<path class="dg-line" d="M330 210 L70 210" marker-end="url(#arr3)"/>' +
+    '<text class="dg-text" x="90" y="202">⑤ stop_reason="end_turn"，給出最終回答</text>' +
+    '<defs><marker id="arr3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path class="dg-arrow" d="M0,0 L6,3 L0,6 z"/></marker></defs>' +
+  '</svg><div class="cap">③ 是唯一「真的做事」的一步，而且永遠發生在 Harness 這一側。</div></div>' +
+'</div>' +
+'<div class="section">' +
+  '<h4>迴圈要處理的決策點</h4>' +
+  '<p>把上面五步式的迴圈接上工具之後，多出幾個必須明確處理、卻很容易被忽略的分支：</p>' +
+  '<div class="table-wrap"><table><tr><th>情境</th><th>Harness 該怎麼處理</th></tr>' +
+    '<tr><td>回應裡有一個或多個 <span class="mono">tool_use</span> 區塊</td><td>依名稱查表，分派給對應的本地函式，帶著模型給的參數執行</td></tr>' +
+    '<tr><td>工具名稱查不到對應的函式</td><td>視為執行失敗，回傳 <span class="mono">is_error</span>——不是讓整個迴圈當掉</td></tr>' +
+    '<tr><td>工具執行時丟出例外</td><td>同樣包成帶 <span class="mono">is_error</span> 的 <span class="mono">tool_result</span> 回傳，讓模型看得到失敗訊息並嘗試別的做法</td></tr>' +
+    '<tr><td>累積輪數超過安全上限</td><td>主動中止並回報「可能卡在迴圈裡」——沒有上限的話，模型持續失敗重試會讓迴圈永遠跑下去</td></tr>' +
+    '<tr><td><span class="mono">stop_reason</span> 不是 <span class="mono">tool_use</span></td><td>迴圈結束，把最終回答交還使用者</td></tr>' +
+  '</table></div>' +
+  '<div class="callout"><span class="k">提示</span><p>這裡的 <span class="mono">stop_reason</span>、<span class="mono">tool_use</span>／<span class="mono">tool_result</span> 命名方式是 Anthropic Messages API 的形狀；不同供應商命名不同（例如某些 API 用獨立的 <span class="mono">tool</span> 角色和 <span class="mono">tool_calls</span> 欄位承載同樣的資訊），但「送請求 → 模型要求呼叫 → Harness 執行 → 回傳結果」這個協定本身是共通的。第 8 章會看到 hermes-agent 怎麼把不同供應商的形狀統一收斂成同一種內部格式。</p></div>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>兩條常被忽略的規則</h3>' +
+  '<ul>' +
+    '<li><strong>平行呼叫要合併回傳。</strong>模型一次可以回傳多個 <span class="mono">tool_use</span>；把它們全部執行完，<em>合併成同一則訊息</em>回傳，拆成多則訊息會讓模型漸漸學會不再平行呼叫，效率變差。</li>' +
+    '<li><strong>失敗也要回傳，不能略過不報。</strong>工具執行出錯時，照樣回傳 <span class="mono">tool_result</span>，加上 <span class="mono">is_error: true</span>。讓模型「看得到」失敗訊息，它才有機會換個做法，而不是卡住或瞎猜。</li>' +
+  '</ul>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>訊息歷史裡實際存的是什麼形狀</h3>' +
+  '<p>迴圈把模型回應的「區塊陣列」整包存回歷史，不是只存文字。走過「使用者提問 → 模型要求呼叫工具 → 拿到結果 → 模型給出最終回答」這一輪後，歷史裡出現的區塊類型是：</p>' +
+  '<div class="table-wrap"><table><tr><th>區塊類型</th><th>出現在誰的回合</th><th>帶什麼資訊</th></tr>' +
+    '<tr><td class="mono">text</td><td>assistant</td><td>一段文字——模型最終要說的話</td></tr>' +
+    '<tr><td class="mono">tool_use</td><td>assistant</td><td>工具名稱＋這次呼叫的參數，還有一個用來配對結果的唯一 id</td></tr>' +
+    '<tr><td class="mono">tool_result</td><td>user（下一輪）</td><td>對應 <span class="mono">tool_use</span> 的 id、執行結果內容；失敗時多一個 <span class="mono">is_error</span> 旗標</td></tr>' +
+  '</table></div>' +
+  '<p>也就是說，assistant 那一側的 <span class="mono">content</span> 永遠是「區塊陣列」——可能只有一個 text 區塊，也可能同時有好幾個 tool_use 區塊混在一起。第 2 章把它簡化成純字串，是為了先讓你看懂五步骨架，不是真正的形狀。</p>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>平行工具呼叫：真正的意思是「同時發動」</h3>' +
+  '<p>模型一次可以回傳好幾個 <span class="mono">tool_use</span> 區塊。「平行執行」指的是<strong>同時對所有工具發出執行請求</strong>，不是一個做完才做下一個；全部完成後，依模型原本的呼叫順序重新組裝結果，合併成同一則訊息回傳。先做完的工具不用等慢的那個，但結果要按原順序排好才送回去。</p>' +
+  '<div class="callout"><span class="k">hermes-agent 實際上怎麼做</span><p>單一工具呼叫直接跑；一次有多個工具呼叫時，用一個執行緒池（thread pool）同時發動所有呼叫，結果依模型原本的呼叫順序重新排列後才回傳——跟上面描述的原則完全一致。</p></div>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>API 呼叫本身也會失敗，跟工具失敗是不同層級的問題</h3>' +
+  '<p>前面 <span class="mono">is_error: true</span> 處理的是「工具跑起來但失敗了」。但送出請求這一步本身也可能失敗——網路斷線、429 限流、伺服器 5xx——這時候連回應都拿不到，沒有 <span class="mono">tool_result</span> 可以回傳，得在 Harness 這一層自己決定重試還是放棄。<span class="mono">stop_reason</span> 本身也不是只有「要不要呼叫工具」兩種結果：</p>' +
+  '<div class="table-wrap"><table><tr><th>情況</th><th>代表什麼</th><th>正確處理方式</th></tr>' +
+    '<tr><td class="mono">stop_reason: end_turn</td><td>正常講完</td><td>回傳給使用者，迴圈結束</td></tr>' +
+    '<tr><td class="mono">stop_reason: tool_use</td><td>要求執行工具</td><td>執行後把結果餵回去，繼續迴圈</td></tr>' +
+    '<tr><td class="mono">stop_reason: max_tokens</td><td>回應被硬生生截斷，<span class="mono">content</span> 裡可能躺著一個沒寫完的 <span class="mono">tool_use</span></td><td>不能直接照做——先偵測這個狀況，決定要求模型繼續生成、還是判定失敗</td></tr>' +
+    '<tr><td>網路錯誤／429／5xx</td><td>呼叫本身失敗，連回應都沒拿到</td><td>在 Harness 層重試，通常搭配指數退避＋一點隨機延遲（避免多個重試同時撞在一起），超過重試上限就放棄並回報失敗</td></tr>' +
+  '</table></div>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>不是每個工具請求都該照做</h3>' +
+  '<p>第③步「本地執行工具」講起來像是查表呼叫函式，但如果工具是「刪除檔案」「執行 shell 指令」「花錢的 API」，不假思索地照做並不安全。正式的 Harness 通常在真正執行前多一道關卡：</p>' +
+  '<ul>' +
+    '<li><strong>風險分級</strong>——唯讀查詢類直接放行；有副作用的操作（寫檔、對外發送訊息、花錢）標記需要確認；破壞性操作（刪除、shell 指令）預設要人工核准。</li>' +
+    '<li><strong>沙箱</strong>——真的要執行程式碼或 shell 指令時，讓它在隔離環境（容器、受限的子行程）裡跑，不要直接動到執行 Harness 本身的機器。</li>' +
+    '<li><strong>核准流程</strong>——把「模型想做的事」攤開給使用者看，等按下確認才真的執行——這本質上也是一種 <span class="mono">tool_result</span>，只是要等人類回應後才產生，迴圈在這裡會先暫停。</li>' +
+  '</ul>' +
+  '<div class="callout"><span class="k">hermes-agent 實際上怎麼做</span><p>危險的 shell 指令會先過一份規則比對（一組已知危險模式），命中就先卡住等人核准，而不是直接執行——這就是「風險分級 + 核准流程」在真實系統裡的樣子。</p></div>' +
+'</div>';
+
+BODY[4] =
+'<div class="section">' +
+  '<h3>問題：歷史只會變胖，context window 不會變大到無限</h3>' +
+  '<p>每多一輪對話、每多一次工具呼叫的結果，<span class="mono">messages</span> 就再長一截。就算 context window 有到 100 萬 token，長時間運作的 agentic loop（連續跑幾十輪、讀一堆檔案）還是會逼近上限，而且更現實的問題是：<strong>越長，每一輪就越貴、越慢</strong>。三種對策，處理的是不同層次的問題。</p>' +
+'</div>' +
+'<div class="section">' +
+  '<h4>先解決一個更基本的問題：怎麼知道現在用了多少</h4>' +
+  '<p>單靠感覺判斷是否接近上限並不可靠。每次 <span class="mono">model.create(...)</span> 的回應裡都有 <span class="mono">usage.input_tokens</span>——這是這一輪「實際」用掉的輸入 token 數，比自己數字元準得多。做法：每輪呼叫後記下這個數字，設一個門檻（例如模型 context window 的 80%），一超過就在<em>下一輪送出前</em>先觸發清除或壓縮，而不是等到 API 直接因為超長而報錯。</p>' +
+  '<h4>對策一：Prompt Caching（快取）—— 不縮減內容，只是省得重算</h4>' +
+  '<p>把不會變動的前綴（system prompt、工具定義）標記起來，重複呼叫時直接複用，不用重新處理。它是<strong>前綴比對（prefix match）</strong>：前面任何一個 byte 變了，後面全部失效。所以穩定內容要放前面、易變內容放後面。實際做法通常是在請求裡的某個穩定位置（例如 system prompt 或工具定義的結尾）標記一個「快取邊界」——這個邊界之前的內容如果沒變，下次呼叫就能命中快取；邊界後面接的任何一個 byte 變了，快取就從那個點開始失效。</p>' +
+  '<h4>對策二：Context Editing（清除）—— 直接丟掉不留痕跡</h4>' +
+  '<p>主動清掉已經用不到的舊工具結果或思考過程，不做摘要，直接從歷史裡刪除以騰出空間。</p>' +
+  '<div class="callout warn"><span class="k">常見地雷</span><p>清除一個舊的 <span class="mono">tool_result</span> 時，一定要連同它配對的 <span class="mono">tool_use</span> 一起處理（一起刪掉，或用佔位符替換）。落單的 <span class="mono">tool_use</span> 沒有對應的 <span class="mono">tool_result</span>，會讓下一次請求變成一個無效請求，多數 API 會直接報錯拒絕。</p></div>' +
+  '<div class="callout"><span class="k">hermes-agent 實際上怎麼做</span><p>它不是一個要另外決定「開不開」的獨立機制，而是下面「對策三」那套流程裡最便宜的第一步——只要壓縮器被觸發，這個清除動作就會自動先跑一遍。換句話說，在真實系統裡，Context Editing 跟 Compaction 不是兩個可以分開開關的獨立策略，而是同一套流程裡「便宜的第一步」跟「昂貴的後續步驟」——概念上拆開講是為了先看懂各自的原理，實務上它們綁在同一次觸發裡發生，細節見本章稍後的深入解析。</p></div>' +
+  '<h4>對策三：Compaction（壓縮）—— 摘要保留語意</h4>' +
+  '<p>當累積內容接近門檻，把早期歷史濃縮成一個緊湊但保留語意的區塊，取代掉原始內容。跟清除不同，它不是「丟掉」而是「講重點」。這通常是 API 供應商提供的<strong>選用功能</strong>：你在請求裡明確開啟它，回應裡就會多出一種特殊區塊，代表「這一段已經被壓縮過」。如果手上的 API 沒有這種功能，也可以自己動手做一個陽春版：先定義清楚要保留的「最近 M 輪」原始內容不動，再另外呼叫一次模型，把「最近 M 輪」以外、比較舊的那 N 輪對話總結成一小段文字，最後把 <span class="mono">messages</span> 陣列裡「最近 M 輪」以外的那部分，換成「一則包含這段摘要的訊息」。</p>' +
+  '<div class="callout warn"><span class="k">常見地雷</span><p>用 compaction 時，下一輪要把<strong>完整的回應內容</strong>（不只是文字）存回歷史，因為裡面包含只有伺服端看得懂、用來在下次請求時「還原壓縮狀態」的特殊區塊。只存文字字串會讓這個機制悄悄失效。</p></div>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>hermes-agent 實際上怎麼做：修剪＋摘要</h3>' +
+  '<p>拆開來看，hermes-agent 的 compaction 其實只由兩件事組成：先<strong>修剪</strong>掉明顯不需要的舊工具結果，再把修剪後仍然留著、但已經不算「近期」的那段歷史，呼叫一個輔助模型<strong>摘要</strong>成一段結構化筆記。下面依這個順序講。</p>' +
+  '<div class="diagram"><svg viewBox="0 0 660 150" width="100%" height="150" role="img" aria-label="hermes-agent 壓縮四步驟">' +
+    '<rect class="dg-box" x="10" y="45" width="150" height="50" rx="8"/><text class="dg-text" x="85" y="66" text-anchor="middle" font-size="11">① 便宜修剪</text><text class="dg-mono" x="85" y="82" text-anchor="middle" font-size="9">規則式，不呼叫模型</text>' +
+    '<rect class="dg-box" x="175" y="45" width="150" height="50" rx="8"/><text class="dg-text" x="250" y="66" text-anchor="middle" font-size="11">② 劃定保護邊界</text><text class="dg-mono" x="250" y="82" text-anchor="middle" font-size="9">開頭區段＋近期窗口</text>' +
+    '<rect class="dg-box accent" x="340" y="45" width="150" height="50" rx="8"/><text class="dg-text" x="415" y="66" text-anchor="middle" font-size="11">③ 產生結構化摘要</text><text class="dg-mono" x="415" y="82" text-anchor="middle" font-size="9">呼叫輔助模型</text>' +
+    '<rect class="dg-box" x="505" y="45" width="150" height="50" rx="8"/><text class="dg-text" x="580" y="66" text-anchor="middle" font-size="11">④ 重新組裝</text><text class="dg-mono" x="580" y="82" text-anchor="middle" font-size="9">開頭＋摘要＋近期窗口</text>' +
+    '<path class="dg-line" d="M160 70 L175 70" marker-end="url(#arr4)"/>' +
+    '<path class="dg-line" d="M325 70 L340 70" marker-end="url(#arr4)"/>' +
+    '<path class="dg-line" d="M490 70 L505 70" marker-end="url(#arr4)"/>' +
+    '<defs><marker id="arr4" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path class="dg-arrow" d="M0,0 L6,3 L0,6 z"/></marker></defs>' +
+  '</svg><div class="cap">①②屬於「修剪」，③④屬於「摘要」；只有③真正花錢呼叫模型，其餘三步都是規則式的整理工作。</div></div>' +
+  '<h4>第一步：修剪——規則式砍掉舊工具結果，不呼叫模型</h4>' +
+  '<p>怎麼決定要砍什麼：不靠模型評估，純規則比對。刪除候選是「超過 200 字元、且不在近期保留窗口內」的舊工具結果。近期保留窗口有多大，主要由 token 預算決定，不是單純數訊息筆數：<span class="mono">tail_token_budget = clamp(context 視窗 × 2.5%, 10000, 25000)</span>（單位 token，預設的「lean 模式」公式）；訊息筆數只當一個下限，<span class="mono">min(protect_last_n, 8)</span>，代入預設值＝<span class="mono">min(20, 8) = 8</span> 則（<span class="mono">agent/context_compressor.py</span> 的 <span class="mono">_MAX_TAIL_MESSAGE_FLOOR = 8</span>）。窗口以外，另外還有一段<strong>開頭固定區段</strong>（<span class="mono">protect_first_n</span>，預設 <strong>3</strong> 則）永遠不會被動到。窗口內的工具呼叫跟它的結果一定成對保留，絕不會攔腰切斷，呼應前面「常見地雷」講的配對限制。開頭固定區段與近期保留窗口以外剩下的舊內容，才是下一步真正會被摘要掉的範圍。</p>' +
+  '<h4>第二步：摘要——把剩下的舊歷史濃縮成結構化筆記</h4>' +
+  '<p>被畫出來的那段舊歷史，會送給一個輔助模型（屬於 hermes-agent 的 auxiliary task 體系）摘要——不是讓模型自由發揮，而是照一份固定模板逐段填寫：</p>' +
+  '<div class="table-wrap"><table><tr><th>模板段落</th><th>要求</th></tr>' +
+    '<tr><td>Historical Task Snapshot（開頭標頭）</td><td>標示這是「歷史任務快照」，不是即時對話</td></tr>' +
+    '<tr><td>Goal</td><td>這段歷史裡使用者真正想完成的任務</td></tr>' +
+    '<tr><td>Constraints &amp; Preferences</td><td>使用者提過的限制與偏好</td></tr>' +
+    '<tr><td>Completed Actions</td><td>已完成的動作，以編號的行動紀錄格式列出</td></tr>' +
+    '<tr><td>Active State</td><td>目前進行到哪、還卡在哪個狀態</td></tr>' +
+    '<tr><td>Blocked</td><td>被什麼卡住、還在等什麼</td></tr>' +
+    '<tr><td>Key Decisions</td><td>做過的關鍵決策與理由</td></tr>' +
+    '<tr><td>Errors &amp; Fixes</td><td>特別要求：對「使用者主動糾正」要引用使用者的原話，並記下因此改了什麼</td></tr>' +
+    '<tr><td>Resolved Questions</td><td>已經有答案、不用再問一次的問題</td></tr>' +
+    '<tr><td>Relevant Files</td><td>這段歷史動到、提到的檔案路徑</td></tr>' +
+    '<tr><td>Critical Context</td><td>其他不能丟的脈絡——明文規定絕不能把 API key／token／密碼等憑證寫進去，一律寫成 <span class="mono">[REDACTED]</span></td></tr>' +
+    '<tr><td>Pruned Skills（選用）</td><td>如果這段歷史裡有 <span class="mono">[SKILL_PRUNED: ...]</span> 這類標記，逐字保留，不能被摘要掉</td></tr>' +
+  '</table></div>' +
+  '<p>摘要 token 預算的公式：<span class="mono">budget = max( 2000, min( 這段內容 token 數 × 20%, min(context 視窗 × 5%, 10000) ) )</span>——下限 2,000 token，上限最高 10,000 token，中間依實際內容量抓 20%。呼叫輔助模型失敗時直接放棄、讓這批舊歷史不帶摘要地被丟掉，而不是塞一個假裝有內容的佔位符去魚目混珠。</p>' +
+  '<h4>同一個 session 壓縮第二次以後：疊代式更新</h4>' +
+  '<p>第一次壓縮是「從零生成」——只有「這段要被砍掉的舊歷史」這一份輸入。但同一個 session 如果又長回門檻、觸發第二次壓縮，這時候手上已經有上一輪產生的摘要了，不會又從零開始。做法不是用程式碼把新內容「接」在舊摘要後面（那樣會愈疊愈長），而是<strong>一次 LLM 呼叫，把「上一輪的完整摘要文字」跟「這次新砍掉的那批舊歷史」一起當輸入</strong>，並在提示詞裡明確要求：還有用的舊資訊要保留、已完成的項目從「進行中」搬到「已完成」、已經有答案的問題搬到「已解決的問題」、過時的才能刪掉。模型吐出來的是<strong>一份全新、完整覆蓋舊摘要的文字</strong>，直接取代掉舊的那份——不是舊摘要 + 新增量的拼接，而是每一輪都重新產出一份完整、但看得到「上一輪成果」的新版本。</p>' +
+  '<div class="diagram"><svg viewBox="0 0 700 210" width="100%" height="210" role="img" aria-label="疊代式摘要更新流程">' +
+    '<rect class="dg-box" x="10" y="20" width="170" height="50" rx="8"/><text class="dg-text" x="95" y="41" text-anchor="middle" font-size="11">上一輪的摘要</text><text class="dg-mono" x="95" y="58" text-anchor="middle" font-size="9">（v1，完整文字）</text>' +
+    '<rect class="dg-box" x="10" y="110" width="170" height="50" rx="8"/><text class="dg-text" x="95" y="131" text-anchor="middle" font-size="11">這次新砍掉的舊歷史</text><text class="dg-mono" x="95" y="148" text-anchor="middle" font-size="9">（原始輪次文字）</text>' +
+    '<rect class="dg-box accent" x="250" y="65" width="160" height="60" rx="8"/><text class="dg-text" x="330" y="90" text-anchor="middle" font-size="11">一次 LLM 呼叫</text><text class="dg-mono" x="330" y="107" text-anchor="middle" font-size="9">兩者都當輸入</text>' +
+    '<rect class="dg-box" x="490" y="65" width="180" height="60" rx="8"/><text class="dg-text" x="580" y="86" text-anchor="middle" font-size="11">新摘要（v2）</text><text class="dg-mono" x="580" y="103" text-anchor="middle" font-size="9">完整覆蓋 v1，不是拼接</text>' +
+    '<path class="dg-line" d="M180 45 L230 45 L230 90 L250 90" marker-end="url(#arr4b)" fill="none"/>' +
+    '<path class="dg-line" d="M180 135 L230 135 L230 100 L250 100" marker-end="url(#arr4b)" fill="none"/>' +
+    '<path class="dg-line" d="M410 95 L490 95" marker-end="url(#arr4b)"/>' +
+    '<path class="dg-line" d="M580 125 C 580 185, 95 185, 95 72" marker-end="url(#arr4b)" fill="none" stroke-dasharray="4 3"/>' +
+    '<text class="dg-mono" x="330" y="175" text-anchor="middle" font-size="9">下一次壓縮時，v2 變成新的「上一輪摘要」，同一個流程再跑一次</text>' +
+    '<defs><marker id="arr4b" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path class="dg-arrow" d="M0,0 L6,3 L0,6 z"/></marker></defs>' +
+  '</svg><div class="cap">舊摘要只被當成這一次 LLM 呼叫的輸入之一，產出後就整份被新版本取代——過程中不存在「逐字保留舊摘要、只在後面加字」這回事。</div></div>' +
+  '<h4>第三步：重新組裝</h4>' +
+  '<p>依原本順序接回新的歷史：<strong>開頭固定區段</strong> → <strong>摘要</strong> → <strong>近期保留窗口</strong>；重組時會清掉任何因為切割落單的工具呼叫配對，確保不會產生無效請求。</p>' +
+  '<h4>所以「compaction」到底是什麼</h4>' +
+  '<p>Compaction 不是修剪、摘要以外的第三種機制，而是這兩件事加上「劃邊界」「重新組裝」——合起來剛好是上面的①②③④——的統稱。拆開看是兩個獨立、各自可以理解的動作；合起來看，就是一次觸發裡連續發生的一套流程。</p>' +
+  '<h4>兩道門：什麼時候會觸發這整套流程</h4>' +
+  '<p>hermes-agent 不是只設一個「接近門檻就壓縮」的觸發點，而是兩層各自獨立、各司其職的防線：</p>' +
+  '<div class="table-wrap"><table><tr><th>層級</th><th>位置</th><th>觸發時機</th><th>怎麼估算用量</th></tr>' +
+    '<tr><td>Gateway 安全網</td><td class="mono">gateway/run.py</td><td>context 用到 <strong>85%</strong>（保底防線）</td><td>沒有真實 token 數時的備援——用粗略的字元數估算</td></tr>' +
+    '<tr><td>Agent 主要壓縮器</td><td class="mono">agent/context_compressor.py</td><td>context 用到 <strong>50%</strong>（預設值，可調整）</td><td>API 回傳的真實 token 數，比字元估算準確</td></tr>' +
+  '</table></div>' +
+  '<p>兩層分工的理由：主要壓縮器做的是上面講的「精細活」（修剪＋摘要），但萬一它被停用、設定錯誤，或門檻設太高導致沒能即時介入，gateway 那層粗略但保底的 85% 防線，確保對話不會因為超長而被 API 直接拒絕。這個壓縮器本身也是可替換的——第 15 章會提到它是一種可以被外掛取代的 <span class="mono">context engine</span> plugin。</p>' +
+  '<h4>門檻不是寫死的單一數字</h4>' +
+  '<p>觸發門檻可以按模型分別覆寫（<span class="mono">compression.model_thresholds</span>，用子字串比對模型名稱，比對到多個候選時最長的字串優先）；另外還有一個「小 context 保底」：如果模型的 context window 本身小於 512K，門檻會自動拉高到 75%，避免小視窗的模型因為 50% 門檻太保守而壓縮得太頻繁、太早開始摘要。壓縮後 session 怎麼保留身份（原地改寫同一個 session id）第 6 章已經講過，這裡不重複。</p>' +
+  '<div class="callout warn"><span class="k">容易搞混的地方</span><p>repo 最上層有一個 <span class="mono">trajectory_compressor.py</span>，名字很像，但完全是另一件事——它是把 session 資料轉換成 ShareGPT 格式的訓練用軌跡，給 <span class="mono">batch_runner.py</span> 合成訓練資料用的，跟這裡講的「對話進行中即時發生」的壓縮（<span class="mono">agent/context_compressor.py</span>）完全無關。這是繼第 8 章 <span class="mono">toolsets.py</span>／<span class="mono">toolset_distributions.py</span> 之後，repo 裡第二個因為命名相近而容易搞混的地方。</p></div>' +
+  '<h4>跟 Prompt Caching 的互動</h4>' +
+  '<p>壓縮發生的那一刻，前綴內容就變了，所以當下那次請求的快取一定會失效——這是壓縮本身的代價，跟前面「三者不是互斥」的原則並不矛盾。hermes-agent 對 Anthropic 模型的快取邊界策略是「system prompt ＋最近 3 則訊息的滾動視窗」，最多 4 個快取斷點，可選 5 分鐘或 1 小時兩種存留時間。壓縮完成後，新的（變短的）歷史從下一輪開始，又會是一段全新、可以重新命中快取的穩定前綴。</p>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>三者不是互斥的</h3>' +
+  '<p>一個成熟的 Harness 通常同時用上三種：system prompt 和工具定義用快取（幾乎每次都能命中）、過時的中間結果主動清除、真正裝不下時才觸發壓縮。它們解決的是「多花錢」「多佔空間」「徹底爆掉」三種不同嚴重程度的問題。</p>' +
+'</div>';
+
+BODY[5] =
+'<div class="section">' +
+  '<h3>兩種完全不同的「記住」</h3>' +
+  '<p>「Harness 有記憶」這句話常常混淆兩件事：一是對話歷史（第 2 章的 <span class="mono">messages</span>），會隨著 context 管理被摘要或清掉；二是<strong>真正想跨 session 保留下來的東西</strong>——使用者的名字、偏好、進行中任務的關鍵決策。後者才是這一章要談的「記憶系統」。</p>' +
+  '<h4>從零設計的兩個選擇</h4>' +
+  '<ul>' +
+    '<li><strong>精選、有限、自動注入</strong>——像一張隨身筆記卡，容量小，每次對話都會自動出現在模型眼前，逼你只留下真正重要的事。</li>' +
+    '<li><strong>完整、無限、隨選查詢</strong>——像一個檔案庫，什麼都存，但不會自動塞進 context，只有在需要時才去搜尋。</li>' +
+  '</ul>' +
+  '<p>這兩種各有取捨：前者快但容易寫滿，後者不會寫滿但需要模型主動決定「要不要去查」。</p>' +
+'</div>' +
+'<div class="callout"><span class="k">hermes-agent 實際上怎麼做</span>' +
+  '<p>兩種都做，而且分得很開：</p>' +
+  '<ul>' +
+    '<li><strong>MEMORY.md／USER.md</strong>（<code>~/.hermes/memories/</code>）—— agent 自己的筆記與使用者側寫，各有嚴格字元上限（MEMORY.md 約 2,200 字元／800 token，USER.md 約 1,375 字元／500 token）。透過 <span class="mono">memory</span> 工具的 add／replace／remove 操作（用子字串比對，沒有 read 動作——因為內容本來就會自動出現）。</li>' +
+    '<li><strong>「凍結快照」機制</strong>：這些檔案在 session 開始時被讀進 system prompt 一次，之後為了 prompt cache 穩定性就不再變動；session 中途新寫入的內容會立刻存檔，但通常要等<em>下一個</em> session（或這個 session 中途觸發 compaction 時）才會出現在模型眼前——因為 compaction 本來就要重建 system prompt，重建時會順便把記憶重新讀一次，不是只有換 session 才會刷新。</li>' +
+    '<li><strong>session_search</strong>——另一軌：全部的 CLI／gateway 對話歷史存在 <span class="mono">~/.hermes/state.db</span>，用 SQLite FTS5 全文索引，透過 <span class="mono">session_search</span> 工具隨選查詢，不做任何摘要，純粹的資料庫查找。這個資料庫本身怎麼運作——WAL 模式、FTS5 索引、多程式併發寫入——<button class="ch-link" data-goto="6">在第 6 章有完整拆解</button>。</li>' +
+    '<li><strong>外部記憶 provider</strong>（選用，<span class="mono">plugins/memory/</span> 下的插件，如 Honcho、Mem0、Holographic 等，共 8 種，見第 13 章）——透過 <span class="mono">memory.provider</span> 設定切換（預設是空字串，代表只用內建機制），同時間只能啟用一個。啟用後它不會取代 MEMORY.md／USER.md 或 <span class="mono">state.db</span>，三者永遠疊加並存——這裡的「provider」跟第 6 章的 <span class="mono">state.db</span> 是兩回事：<span class="mono">state.db</span> 不受這個設定控制，不管有沒有啟用外部 provider 都一直在運作。</li>' +
+  '</ul>' +
+  '<p><strong>觸發自我檢討的，是使用者輪次計數，不是 compaction：</strong><span class="mono">memory.nudge_interval</span>（預設 10）每累積滿 10 個使用者輪次（<span class="mono">agent._turns_since_memory</span> 計數到門檻，<span class="mono">agent/turn_context.py</span>），就會 fork 出一個全新的 <span class="mono">AIAgent</span>，重播當前對話快照，工具白名單只留記憶／skill 相關工具，讓它自問「這一段該不該存進 MEMORY.md／USER.md 或建立新 skill」，寫入結果直接落地——這個分支<strong>完全不碰主對話或它的 prompt cache</strong>（<span class="mono">agent/background_review.py</span>）。安全閥 <span class="mono">memory.write_approval: true</span> 可以把「寫入記憶」這件事鎖在人工核准後面（<code>/memory pending|approve|reject</code>），前景對話與這個背景自我檢討分支都一併受控。</p>' +
+'</div>';
+
+BODY[6] =
+'<div class="section">' +
+  '<h3>從零設計：狀態要放哪裡？</h3>' +
+  '<p>一個 Harness 如果程式重開就忘記所有對話，幾乎沒有實用價值。最簡單的做法是「每個 session 存一個 JSON 檔案」，但這在多個程式同時讀寫、需要搜尋、需要統計用量時很快會不夠用——這正是為什麼幾乎所有正式的 Harness 最後都會走向一個真正的資料庫。</p>' +
+'</div>' +
+'<div class="callout"><span class="k">hermes-agent 實際上怎麼做</span>' +
+  '<p>所有 session 的完整訊息歷史，集中在<strong>單一 SQLite 資料庫</strong>：<span class="mono">~/.hermes/state.db</span>，用 <strong>WAL 模式</strong>（Write-Ahead Logging）——寫入不直接改主資料庫檔案，而是先追加到旁邊一個「日誌檔」，之後才定期合併回主檔案；好處是讀取者不會被寫入者卡住，這在下面「多個程式搶同一個檔案」時很關鍵。背後的實作 <span class="mono">hermes_state.py</span> 近 700KB（實測 698KB），是 repo 裡數一數二龐大的「單一功能」模組，但不是 repo 裡最大的檔案——<span class="mono">gateway/run.py</span>（約 1.6MB）、<span class="mono">cli.py</span>（約 1.0MB）等入口／CLI 檔案都比它大。裡面定義了 <span class="mono">SessionDB</span> 類別。</p>' +
+  '<h4>裡面存了什麼</h4>' +
+  '<ul>' +
+    '<li><span class="mono">sessions</span>、<span class="mono">messages</span>、<span class="mono">session_model_usage</span> —— 基本的對話與用量紀錄。</li>' +
+    '<li><strong>FTS</strong>（Full-Text Search，SQLite 內建的全文檢索擴充功能 FTS5）——先把每則訊息的文字拆成一份「關鍵字 → 出現在哪幾列」的反向索引，查詢時就不用逐列掃描比對字串，直接查表。<span class="mono">messages_fts</span> / <span class="mono">_fts_trigram</span> / <span class="mono">_fts_cjk</span> 是三張各自用<strong>不同拆字方式（tokenizer）</strong>建的索引：<span class="mono">messages_fts</span> 按空白分詞，適合英文這種字與字之間有空格的語言；<span class="mono">_fts_trigram</span> 用「每 3 個字元切一段、互相重疊」的方式拆，不管有沒有空格都能做子字串比對；<span class="mono">_fts_cjk</span> 是專門給中日韓文字設計的拆字規則（中文詞和詞之間沒有空格，前兩種切法對中文效果都不好，所以需要專門的 FTS 表）。全部都是給 <span class="mono">session_search</span> 工具查詢用的。</li>' +
+    '<li><span class="mono">messages.tool_calls</span> 以 JSON 文字存放；還有一個 <span class="mono">api_content</span> 側欄位，保留「當初送給模型 API 的原始位元組」，跟顯示用的 <span class="mono">content</span> 分開——確保 prompt cache 重放時位元組完全一致。</li>' +
+  '</ul>' +
+  '<h4>什麼時候寫入</h4>' +
+  '<p><strong>比每一輪對話結束更頻繁地寫入</strong>：實際上是在一次 turn 裡的多個檢查點（例如每次工具呼叫後）就觸發 flush，把該批還沒寫入的訊息透過 <span class="mono">SessionDB.append_messages_batch()</span> 一次性寫進一個 <span class="mono">BEGIN IMMEDIATE</span> 交易（<span class="mono">BEGIN IMMEDIATE</span> 是「交易一開始就先搶寫鎖」，跟 SQLite 預設「等到真正寫入那一刻才搶鎖」不同——好處是搶不到鎖會立刻知道，而不是做到一半才發現卡住）（官方註解形容為「一個 turn 通常 3–8 則訊息，一次交易」），而不是逐則呼叫單筆的 <span class="mono">append_message()</span>，也不是等到 session 結束才存檔——這代表就算程式在對話中途當掉，前面已 flush 的內容也不會遺失。</p>' +
+  '<h4>多個程式搶同一個檔案怎麼辦</h4>' +
+  '<p>同一個 <span class="mono">state.db</span> 可能同時被好幾個程式寫入：gateway、CLI，以及 <strong>worktree agent</strong>（用 <span class="mono">hermes --worktree</span> 啟動的 session——它會用 <span class="mono">git worktree add</span> 另外切出一份獨立的工作目錄＋分支，讓這個 agent 在不影響你當前分支的地方單獨改程式碼，但仍然共用同一個 <span class="mono">~/.hermes/state.db</span>）。多個程式搶同一份資料庫檔案的寫入權，做法拆開來看是四件事疊在一起：①連線先設一個<strong>短逾時</strong>（1 秒）——搶不到鎖就快速失敗，不要傻等；②搶鎖失敗就在應用層自己重試，重試間隔加一點<strong>隨機亂數（jitter）</strong>，是為了避免好幾個程式同時醒來又同時再撞在一起（這叫 convoy／驚群問題）——爭用愈久，這個隨機間隔也拉得愈長（從 20–150ms 逐步拉高到 250ms–1s）；③重試不是「試 N 次就放棄」，而是「試到某個時間預算用完就放棄」（一般寫入約 20 秒，逐字稿等關鍵寫入放寬到 60 秒）；④每次交易明確用上面提到的 <span class="mono">BEGIN IMMEDIATE</span> 搶寫鎖，並且每 50 次寫入就做一次 WAL 的 checkpoint（把日誌檔的內容合併回主資料庫檔案，避免日誌檔無限長大）。</p>' +
+  '<h4>壓縮後 session 去哪了</h4>' +
+  '<p>目前預設 <span class="mono">compression.in_place: true</span>：壓縮（見第 4 章）發生時<strong>原地改寫同一個 session id</strong>，舊的輪次標記 <span class="mono">active=0, compacted=1</span> 軟性封存、但仍然可以被搜尋到，而不是換一個新 session id（這是為了修掉一整類「切換 session 後某些狀態跟丟」的 bug）。</p>' +
+'</div>';
+
+BODY[7] =
+'<div class="section">' +
+  '<h3>從零設計：為什麼需要「子 Agent」</h3>' +
+  '<p>單一 Agent 的 context 是有限資源。如果一個任務需要讀 50 個檔案才能做出一個結論，把 50 個檔案的內容全部塞進主線對話會迅速把 context 塞爆、也會讓後續推理變得混亂。<strong>委派（delegation）</strong>的核心想法是：讓子 Agent 在自己乾淨的 context 裡把髒活做完，只把「結論」帶回主線。</p>' +
+'</div>' +
+'<div class="diagram"><svg viewBox="0 0 640 220" width="100%" height="220" role="img" aria-label="委派流程圖">' +
+  '<rect class="dg-box accent" x="30" y="70" width="150" height="60" rx="8"/>' +
+  '<text class="dg-text" x="105" y="105" text-anchor="middle" font-weight="600">父 Agent</text>' +
+  '<rect class="dg-box" x="460" y="70" width="150" height="60" rx="8"/>' +
+  '<text class="dg-text" x="535" y="97" text-anchor="middle" font-weight="600">子 Agent</text>' +
+  '<text class="dg-mono" x="535" y="114" text-anchor="middle" font-size="10">（全新、獨立 context）</text>' +
+  '<path class="dg-line" d="M180 90 L460 90" marker-end="url(#arr7)"/>' +
+  '<text class="dg-text" x="210" y="78" font-size="12">delegate_task(goal, context)</text>' +
+  '<path class="dg-line" d="M460 112 L180 112" marker-end="url(#arr7)"/>' +
+  '<text class="dg-text" x="210" y="140" font-size="12">只回傳「結構化摘要」，不回傳逐字稿</text>' +
+  '<defs><marker id="arr7" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path class="dg-arrow" d="M0,0 L6,3 L0,6 z"/></marker></defs>' +
+'</svg><div class="cap">子 Agent 拿不到父 Agent 的對話歷史——只有 goal 和 context 兩個字串。</div></div>' +
+'<div class="callout"><span class="k">hermes-agent 實際上怎麼做</span>' +
+  '<p>模型面向的入口是 <span class="mono">delegate_task</span> 工具（<span class="mono">tools/delegate_tool.py</span>，超過 5,000 行）。呼叫時會建構一個<strong>全新的 <span class="mono">AIAgent</span></strong>，關鍵參數透露了隔離設計：<span class="mono">skip_context_files=True</span>、<span class="mono">skip_memory=True</span>、<span class="mono">platform="subagent"</span>、指向同一個資料庫檔案的獨立連線、由 <span class="mono">_build_child_system_prompt</span> 產生的專屬系統提示，以及用來追蹤家系的 <span class="mono">parent_session_id</span>。</p>' +
+  '<p>官方文件直接寫著 <strong>「Subagents Know Nothing」</strong>——子 Agent 拿不到父層的任何對話歷史，只有 <span class="mono">goal</span> 和 <span class="mono">context</span> 兩個字串（唯一例外是工作目錄底下的專案規則檔，如 AGENTS.md，會被嵌進子 Agent 的系統提示）。結果回傳也對稱地嚴格：只有子 Agent<strong>最終的結構化摘要</strong>會回到父層 context，完整過程留在子 Agent 自己的 session 裡。</p>' +
+  '<p>頂層的 <span class="mono">delegate_task</span> 預設<strong>在背景執行</strong>：父 Agent 立刻拿到一個任務代號（handle）就能繼續做別的事，結果之後以「一輪新的合成訊息」形式送回（靠 state.db 保證不會遺失）；每個任務的即時逐字稿也會寫進 <span class="mono">&lt;hermes_home&gt;/cache/delegation/live/&lt;delegation_id&gt;/task-&lt;n&gt;.log</span>，方便旁觀進度。</p>' +
+  '<p>子 Agent 被<strong>禁止</strong>再呼叫 <span class="mono">delegate_task</span>（避免無限增殖）、以及 <span class="mono">clarify</span>、<span class="mono">memory</span>、<span class="mono">send_message</span>、<span class="mono">cronjob</span>。深度預設是扁平的（<span class="mono">max_spawn_depth: 1</span>），要顯式設成 <span class="mono">orchestrator</span> 角色並調高深度，才能開出多層委派樹。父層也能對還在跑的子 Agent 下達 <span class="mono">stop</span>／<span class="mono">steer</span>／<span class="mono">list</span> 等控制指令——注意模型面向的動作叫 <span class="mono">stop</span>，不是 <span class="mono">interrupt</span>；<span class="mono">interrupt_subagent()</span> 只是內部實作用的函式名稱，讀原始碼時容易把兩者搞混。</p>' +
+'</div>';
+
+BODY[8] =
+'<div class="section">' +
+  '<h3>從零設計：工具要怎麼「被知道」存在</h3>' +
+  '<p>工具愈多，手動維護一份「目前有哪些工具」的清單就愈痛苦——新增一個工具、忘記登記，它就永遠不會出現在模型面前。比較耐用的做法是<strong>自我註冊（self-registration）</strong>：工具檔案自己宣告「我是誰、我需要什麼參數、什麼情況下我可用」，由一個中央註冊表在啟動時自動收集。</p>' +
+'</div>' +
+'<div class="callout"><span class="k">hermes-agent 實際上怎麼做</span>' +
+  '<p><span class="mono">tools/</span> 底下每個檔案，只要在模組頂層呼叫一次 <span class="mono">registry.register(name=..., toolset=..., schema=..., handler=..., check_fn=...)</span>，就完成了註冊。<span class="mono">tools/registry.py</span> 的 <span class="mono">discover_builtin_tools()</span> 會在啟動時<strong>用 AST 掃描</strong>整個 tools 目錄，只匯入有頂層 <span class="mono">register()</span> 呼叫的檔案——不需要維護任何手動清單。</p>' +
+  '<p>每個工具可以附一個 <span class="mono">check_fn</span>（例如「有沒有設定 API key」），在組裝模型看得到的工具清單時被評估；拋出例外一律視為「不可用」（fail-safe），不可用的工具會被悄悄從清單裡拿掉，模型不會看到它。</p>' +
+  '<p><span class="mono">toolsets.py</span> 定義具名的工具組合（像 <span class="mono">"web"</span>、<span class="mono">"vision"</span>、<span class="mono">"delegation"</span>）以及平台預設組合（<span class="mono">"hermes-cli"</span>、<span class="mono">"hermes-telegram"</span>），由 <span class="mono">model_tools.get_tool_definitions()</span> 統一組裝出最終送給模型的工具清單。</p>' +
+  '<div class="callout warn"><span class="k">容易搞混的地方</span><p>名字很像的 <span class="mono">toolset_distributions.py</span>，其實跟「這次對話模型看得到哪些工具」完全無關——它只是 <span class="mono">batch_runner.py</span> 合成訓練資料時用的機率抽樣器。讀原始碼時很容易誤把兩者當成同一套機制。</p></div>' +
+  '<h4>Provider 抽象層：換供應商不用重寫 loop</h4>' +
+  '<p>你可能會期待有一個 <span class="mono">providers/</span> 資料夾、每個供應商一個檔案——但實際上邏輯更分散：<span class="mono">hermes_cli/runtime_provider.py</span> 把「使用者選的 (provider, model)」解析成「(api_mode, API key, base_url)」，再由 <span class="mono">agent/anthropic_adapter.py</span>、<span class="mono">agent/bedrock_adapter.py</span> 等各自把不同廠商的請求／回應格式，轉換成同一種內部的 OpenAI 風格訊息字典。除了 <span class="mono">chat_completions</span>／<span class="mono">codex_responses</span>／<span class="mono">anthropic_messages</span> 之外，還有 <span class="mono">bedrock_converse</span>（以及較次要的 <span class="mono">copilot_acp</span>）等至少四、五種 API 模式，各自對應一個 <span class="mono">agent/transports/*.py</span> 傳輸層，最後都收斂到這個共同格式，轉換完成後直接接回第 2、3 章那個迴圈的下一輪——迴圈本身完全感覺不到中間多繞了一層 adapter。不過只有「供應商設定檔」（廠商別名、env vars、base_url、api_mode 字串、預設 aux model 等中繼資料）是用「provider plugin」機制實作的，每家供應商一個 <span class="mono">plugins/model-providers/&lt;name&gt;/</span> 目錄；實際做請求／回應格式轉換的 adapter（如 <span class="mono">agent/anthropic_adapter.py</span>、<span class="mono">agent/bedrock_adapter.py</span>）則是寫死在 <span class="mono">agent/</span>、<span class="mono">agent/transports/</span> 底下、按 api_mode（不是按廠商）共用的固定模組，不在 plugin 目錄裡、也不透過 plugin 機制被發現——第 15 章談外掛系統時會回來對照這條界線。</p>' +
+'</div>';
+
+BODY[9] =
+'<div class="section">' +
+  '<h3>從零設計：語音進得來，也要出得去</h3>' +
+  '<p>把「語音輸入」接進一個文字為主的 Harness，核心想法很簡單：<strong>不要讓模型直接處理音檔</strong>，而是先用一個獨立的 STT（speech-to-text）步驟把音檔變成文字，再讓文字走原本第 2、3 章那套一模一樣的迴圈。模型永遠只看得到文字。</p>' +
+'</div>' +
+'<div class="diagram"><svg viewBox="0 0 660 130" width="100%" height="130" role="img" aria-label="語音轉文字管線">' +
+  '<rect class="dg-box" x="10" y="35" width="110" height="50" rx="8"/><text class="dg-text" x="65" y="65" text-anchor="middle" font-size="12">收到音檔</text>' +
+  '<rect class="dg-box" x="150" y="35" width="110" height="50" rx="8"/><text class="dg-text" x="205" y="65" text-anchor="middle" font-size="12">快取到磁碟</text>' +
+  '<rect class="dg-box" x="290" y="35" width="110" height="50" rx="8"/><text class="dg-text" x="345" y="65" text-anchor="middle" font-size="12">STT provider</text>' +
+  '<rect class="dg-box accent" x="430" y="35" width="110" height="50" rx="8"/><text class="dg-text" x="485" y="60" text-anchor="middle" font-size="12">文字 prepend</text><text class="dg-mono" x="485" y="75" text-anchor="middle" font-size="9">進使用者訊息</text>' +
+  '<rect class="dg-box" x="570" y="35" width="80" height="50" rx="8"/><text class="dg-text" x="610" y="65" text-anchor="middle" font-size="12">Loop</text>' +
+  '<path class="dg-line" d="M120 60 L150 60" marker-end="url(#arr9)"/><path class="dg-line" d="M260 60 L290 60" marker-end="url(#arr9)"/><path class="dg-line" d="M400 60 L430 60" marker-end="url(#arr9)"/><path class="dg-line" d="M540 60 L570 60" marker-end="url(#arr9)"/>' +
+  '<defs><marker id="arr9" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path class="dg-arrow" d="M0,0 L6,3 L0,6 z"/></marker></defs>' +
+'</svg><div class="cap">STT 只是「進入迴圈之前」的一個前處理步驟，跟第 2、3 章的迴圈本體無關。</div></div>' +
+'<div class="callout"><span class="k">hermes-agent 實際上怎麼做（以 gateway 收到語音訊息為例）</span>' +
+  '<ol>' +
+    '<li><strong>下載與快取</strong>：平台 adapter 把原始位元組下載下來，<span class="mono">gateway/platforms/base.py</span> 的 <span class="mono">cache_media_bytes()</span> 依 MIME 類型分類，音檔會呼叫 <span class="mono">cache_audio_from_bytes()</span>，實際落地路徑是 <span class="mono">$HERMES_HOME/cache/audio/</span>（要搬到別的位置得改 <span class="mono">HERMES_HOME</span> 本身——<span class="mono">AUDIO_CACHE_DIR</span> 只是原始碼裡的一個模組層級常數，用來讓測試 monkeypatch，並非會被讀取的環境變數），舊檔案由 <span class="mono">cleanup_audio_cache(max_age_hours=24)</span> 定期清掉。</li>' +
+    '<li><strong>觸發轉錄</strong>：<span class="mono">gateway/run.py</span> 的 <span class="mono">_enrich_message_with_transcription()</span> 對每個快取的音檔路徑呼叫 <span class="mono">transcribe_audio()</span>，失敗時還有 <span class="mono">transcribe_audio_local_fallback()</span> 兜底。</li>' +
+    '<li><strong>實際轉錄</strong>：<span class="mono">tools/transcription_tools.py</span> 的 <span class="mono">transcribe_audio()</span> 會先做安全檢查（避免誤傳到憑證/機密檔案）、必要時用 ffmpeg 轉檔，再依 <span class="mono">stt.provider</span> 設定分派給對應供應商——內建原生支援的有 <span class="mono">local</span>（faster-whisper，免金鑰）、<span class="mono">local_command</span>、<span class="mono">groq</span>、<span class="mono">openai</span>、<span class="mono">mistral</span>、<span class="mono">xai</span>、<span class="mono">elevenlabs</span>、<span class="mono">deepinfra</span> 共 8 種，此外才是自訂的相容端點／插件。這正是本堂課一開始你問「怎麼讓錄音辨識成中文」時，答案的所在——<span class="mono">stt.local.language</span> 或 <span class="mono">HERMES_LOCAL_STT_LANGUAGE</span> 這類設定，就是在控制這一步。</li>' +
+    '<li><strong>寫回對話</strong>：轉錄出來的文字被包成一段加引號的字串，直接 <strong>prepend 到使用者這一輪的訊息文字前面</strong>，才交給 <span class="mono">AIAgent.run_conversation()</span>——模型看到的自始至終就是純文字，完全不知道背後有一段語音處理管線。</li>' +
+  '</ol>' +
+  '<div class="callout"><span class="k">同一個對話，兩層防護</span><p>Gateway 收到訊息時不會只檢查一次：<strong>Level 1</strong> 在 platform adapter 那一層擋住「這個對話已經有訊息在處理中」的重複訊息；<strong>Level 2</strong> 在 GatewayRunner 那一層攔截像 <span class="mono">/stop</span> 這樣的控制指令，並針對「這個 session」（不是全域）做執行狀態檢查。兩層各管一塊：一層防止同一個 session 被同時處理兩次造成競態（race condition），另一層確保控制指令能立刻插隊生效，不會被排在待處理訊息之後才處理。</p></div>' +
+  '<p>CLI 語音模式（<span class="mono">tools/voice_mode.py</span>）走的是另一條錄音路徑（<span class="mono">AudioRecorder</span>，靠簡單的音量門檻偵測——音量低於某個 RMS 閾值、安靜持續超過幾秒就視為講完，自動停止錄音，並非複雜的 VAD 模型），但最終一樣匯流進同一套 STT provider 機制。回覆的語音（TTS）則是完全獨立的一段——<span class="mono">tools/voice_client_config.py</span> 與 <span class="mono">text_to_speech</span> 工具，逐句串流合成以降低第一個字出聲前的等待時間。</p>' +
+'</div>';
+
+BODY[10] =
+'<div class="section">' +
+  '<h3>三條入口，收斂成同一個迴圈</h3>' +
+  '<p>不管你是打字用 CLI、傳訊息到 Telegram、還是排程的 cron 任務觸發，最後都會建立一個 <span class="mono">AIAgent</span> 並呼叫同一套核心邏輯——<span class="mono">agent/conversation_loop.py</span> 的 <span class="mono">run_conversation()</span>（<span class="mono">run_agent.py</span> 裡同名的方法還留著一些外圍的準備／收尾工作，但核心迴圈邏輯現在只是轉發過去，這是讀這個 repo 時很容易踩到的陷阱：只看 <span class="mono">run_agent.py</span> 會誤以為那就是全部）。</p>' +
+'</div>' +
+'<div class="diagram"><svg viewBox="0 0 680 300" width="100%" height="300" role="img" aria-label="Hermes Agent 整體架構全景圖">' +
+  '<text class="dg-mono" x="20" y="22">入口</text>' +
+  '<rect class="dg-box" x="10" y="34" width="120" height="34" rx="6"/><text class="dg-text" x="70" y="56" text-anchor="middle" font-size="11">CLI（hermes chat）</text>' +
+  '<rect class="dg-box" x="10" y="78" width="120" height="34" rx="6"/><text class="dg-text" x="70" y="100" text-anchor="middle" font-size="11">Gateway（各平台）</text>' +
+  '<rect class="dg-box" x="10" y="122" width="120" height="34" rx="6"/><text class="dg-text" x="70" y="144" text-anchor="middle" font-size="11">Cron 排程</text>' +
+  '<path class="dg-line" d="M130 51 L220 90" marker-end="url(#arr10)"/>' +
+  '<path class="dg-line" d="M130 95 L220 95" marker-end="url(#arr10)"/>' +
+  '<path class="dg-line" d="M130 139 L220 100" marker-end="url(#arr10)"/>' +
+  '<rect class="dg-box accent" x="220" y="60" width="150" height="70" rx="8"/><text class="dg-text" x="295" y="90" text-anchor="middle" font-weight="600">conversation_loop</text><text class="dg-mono" x="295" y="106" text-anchor="middle" font-size="10">prompt + cache + compress</text>' +
+  '<path class="dg-line" d="M370 95 L460 95" marker-end="url(#arr10)"/>' +
+  '<rect class="dg-box" x="460" y="60" width="140" height="70" rx="8"/><text class="dg-text" x="530" y="90" text-anchor="middle" font-size="11">Provider Adapter</text><text class="dg-mono" x="530" y="106" text-anchor="middle" font-size="10">anthropic／openai／…</text>' +
+  '<path class="dg-line" d="M295 130 L295 175" marker-end="url(#arr10)"/>' +
+  '<rect class="dg-box" x="220" y="175" width="150" height="42" rx="8"/><text class="dg-text" x="295" y="200" text-anchor="middle" font-size="11">tools/registry 分派</text>' +
+  '<path class="dg-line" d="M340 175 L340 130" marker-end="url(#arr10)" stroke-dasharray="4 3"/>' +
+  '<text class="dg-mono" x="346" y="156" font-size="9">結果回傳，繼續迴圈</text>' +
+  '<path class="dg-line" d="M220 196 L130 196" marker-end="url(#arr10)"/>' +
+  '<rect class="dg-box" x="10" y="175" width="110" height="42" rx="8"/><text class="dg-text" x="65" y="200" text-anchor="middle" font-size="11">delegate_task</text>' +
+  '<path class="dg-line" d="M295 217 L295 255" marker-end="url(#arr10)"/>' +
+  '<rect class="dg-box" x="150" y="255" width="290" height="34" rx="6"/><text class="dg-text" x="295" y="277" text-anchor="middle" font-size="11">~/.hermes/state.db（session／訊息／FTS）</text>' +
+  '<rect class="dg-box" x="450" y="170" width="220" height="52" rx="8"/><text class="dg-text" x="560" y="192" text-anchor="middle" font-size="10">memories/ ・ cache/audio</text><text class="dg-text" x="560" y="207" text-anchor="middle" font-size="10">・ 外部 memory provider</text>' +
+  '<path class="dg-line" d="M370 196 L450 196" marker-end="url(#arr10)"/>' +
+  '<defs><marker id="arr10" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path class="dg-arrow" d="M0,0 L6,3 L0,6 z"/></marker></defs>' +
+'</svg><div class="cap">三條入口收斂到同一個迴圈，工具結果會繞回迴圈本體——這仍然是一個迴圈，不是單向流水線。</div></div>' +
+'<div class="section">' +
+  '<h3>東西最終寫在哪裡：一張速查表</h3>' +
+  '<ul>' +
+    '<li><span class="mono">~/.hermes/state.db</span> —— 所有 session、完整訊息歷史、FTS5 全文索引（第 6 章）</li>' +
+    '<li><span class="mono">~/.hermes/memories/MEMORY.md</span>、<span class="mono">USER.md</span> —— 精選、有上限的長期筆記（第 5 章）</li>' +
+    '<li><span class="mono">$HERMES_HOME/cache/audio/</span> —— 語音訊息暫存音檔，24 小時後自動清理（第 9 章）</li>' +
+    '<li><span class="mono">&lt;hermes_home&gt;/cache/delegation/live/&lt;id&gt;/task-&lt;n&gt;.log</span> —— 委派任務的即時逐字稿（第 7 章）</li>' +
+    '<li>外部記憶 provider 自己的儲存位置（例如 Holographic 用的本機 SQLite <span class="mono">memory_store.db</span>）——選用，跟內建機制並存（第 5 章）</li>' +
+  '</ul>' +
+  '<p>唯一<strong>不會</strong>出現在這張清單裡的，是模型本身——它的權重、它的推理過程，全部在供應商那一側，Harness 從頭到尾都只是個訪客，這正是第一章開場的那句話。</p>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>資料庫不等於可觀測性</h3>' +
+  '<p>state.db 存了完整訊息歷史、delegation 有即時 log 檔——這些是「事後查得到」的資料，但「運行中出了問題，第一時間怎麼發現」是另一件事。一個正式的 Harness 通常還需要三樣東西：</p>' +
+  '<ul>' +
+    '<li><strong>結構化日誌</strong>——每一次模型呼叫、每一次工具執行都留下一筆帶時間戳、session id、耗時、成功／失敗的紀錄，而不是只有「最終存進資料庫的訊息內容」。</li>' +
+    '<li><strong>追蹤（tracing）</strong>——把一輪對話裡「呼叫模型 → 工具執行 → 再次呼叫模型」串成一條可以整條攤開看的鏈路，出問題時能直接定位卡在哪一步，而不必對著大量訊息紀錄臆測。</li>' +
+    '<li><strong>指標（metrics）</strong>——工具錯誤率、平均延遲、token 花費——這些是回答「這次改動讓 Harness 變好還是變差」的量化依據，光靠人工翻對話記錄看不出趨勢。</li>' +
+  '</ul>' +
+  '<p>回頭看第 6 章 SQLite 多寫入者衝突的處理方式，跟第 9 章 gateway 的兩層重複訊息防護——這兩個看起來不相干的機制，其實是同一個原則的兩個實例：<strong>多個東西同時動同一份狀態時，系統要有明確規則決定誰贏、誰重試、誰被擋下來</strong>。可觀測性的價值，就是在這些規則生效之後，讓人仍然看得懂當下發生了什麼事。</p>' +
+'</div>';
+
+BODY[11] =
+'<div class="section">' +
+  '<p><span class="mono">回顧第 8 章</span>：那一章講的是工具「怎麼被註冊、怎麼被分派」的機制（registry 自我註冊、AST 掃描、toolsets.py）。這一章不重講那套機制，聚焦在機制之外的三件事：工具的實際版圖長什麼樣子、terminal 這個特殊工具怎麼做風險隔離、以及當工具多到爆表時怎麼辦。</p>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>工具版圖：分類，不是清單</h3>' +
+  '<p>hermes-agent 內建工具不是一份扁平清單，而是分成幾個大類，每一類解決一種能力缺口：</p>' +
+  '<div class="table-wrap"><table><tr><th>分類</th><th>代表工具</th><th>解決什麼</th></tr>' +
+    '<tr><td>Web</td><td class="mono">web_search, web_extract</td><td>搜尋與擷取網頁內容</td></tr>' +
+    '<tr><td>Terminal &amp; Files</td><td class="mono">terminal, read_file, patch</td><td>執行指令、讀寫檔案</td></tr>' +
+    '<tr><td>Browser</td><td class="mono">browser_navigate, browser_vision</td><td>互動式瀏覽器自動化（文字＋視覺）</td></tr>' +
+    '<tr><td>Media</td><td class="mono">vision_analyze, image_generate, text_to_speech</td><td>多模態分析與生成</td></tr>' +
+    '<tr><td>Agent 編排</td><td class="mono">todo, clarify, execute_code, delegate_task</td><td>規劃、澄清、程式碼執行、委派子代理</td></tr>' +
+    '<tr><td>記憶與回想</td><td class="mono">memory, session_search</td><td>第 5、13 章談的記憶系統</td></tr>' +
+    '<tr><td>自動化</td><td class="mono">cronjob</td><td>排程任務</td></tr>' +
+    '<tr><td>整合</td><td class="mono">ha_*, MCP 工具</td><td>Home Assistant、MCP 伺服器等外部整合</td></tr>' +
+  '</table></div>' +
+  '<p>啟用哪些分類（toolset）是可以按平台調整的：<span class="mono">hermes chat --toolsets "web,terminal"</span>，或用 <span class="mono">hermes tools</span> 互動式設定。</p>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>Terminal 工具：同一個介面，不同的隔離程度</h3>' +
+  '<p>terminal 工具可以指向完全不同的執行環境，這是風險控制的關鍵旋鈕——同一套「執行指令」的操作介面，背後可以是你自己的機器，也可以是遠端沙箱：</p>' +
+  '<div class="table-wrap"><table><tr><th>Backend</th><th>特性</th><th>適合用在</th></tr>' +
+    '<tr><td class="mono">local</td><td>直接在你的機器上跑（預設）</td><td>開發、信任的任務</td></tr>' +
+    '<tr><td class="mono">docker</td><td>隔離容器，丟棄所有 Linux capability（保留 DAC_OVERRIDE/CHOWN/FOWNER 等極少數必要 capability）</td><td>安全性、可重現性</td></tr>' +
+    '<tr><td class="mono">ssh</td><td>遠端伺服器——agent 連自己的原始碼都碰不到</td><td>最強隔離</td></tr>' +
+    '<tr><td class="mono">modal / daytona / vercel_sandbox</td><td>雲端執行／沙箱工作區</td><td>Serverless、持久遠端開發環境</td></tr>' +
+  '</table></div>' +
+  '<p>Docker backend 特別值得注意：它不是「每次呼叫都給一個全新容器」，而是啟動時建立<strong>一個長駐容器</strong>，之後所有 terminal／file／execute_code 呼叫都透過 <span class="mono">docker exec</span> 進同一個容器——裝過的套件、切換過的工作目錄會一路帶到下一次呼叫。容器本身則反過來收緊：丟棄所有 capability 只留極少數必要的（DAC_OVERRIDE/CHOWN/FOWNER）、不能提權、行程數上限、完整命名空間隔離。</p>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>Document Extraction：讓 agent 讀懂非純文字檔案</h3>' +
+  '<p><span class="mono">read_file</span> 會自動把常見文件格式轉成 Markdown——Jupyter notebook、Word、Excel 是內建轉換（永遠可用），PDF、舊版 Office、OpenDocument、RTF/ePub 則透過可選的轉換器（首次使用時自動安裝）。</p>' +
+  '<div class="callout warn"><span class="k">掃描版 PDF 的陷阱</span><p>PDF 轉換只讀「文字層」。掃描進來的合約、傳真、簽名文件通常沒有文字層——轉換不會報錯，只會安靜地變成空內容，唯一的線索是「章節標題有內容、內文卻是空的」。系統會在超過 20% 頁面（或 10 頁以上）沒有文字時主動加上警告，並列出確切缺了哪些頁碼區間，讓 agent 只針對真正需要的缺口去 render＋視覺辨識或跑 OCR，而不是整份文件都重新處理一遍。</p></div>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>Tool Search：工具太多時的漸進式揭露</h3>' +
+  '<p>接上多個 MCP 伺服器後，工具的 JSON schema 有可能佔掉大量 context——即使一輪對話裡真正用得到的只有一兩個。Tool Search 是解法：把 MCP／外掛工具從「每輪都完整列出」改成「用三個橋接工具隨選載入」。<strong>hermes-agent 核心工具永遠不會被延後載入</strong>，只有 MCP 和非核心外掛工具才符合延後資格。</p>' +
+  '<div class="diagram"><svg viewBox="0 0 620 190" width="100%" height="190" role="img" aria-label="Tool Search 三段流程">' +
+    '<rect class="dg-box" x="10" y="70" width="150" height="50" rx="8"/><text class="dg-text" x="85" y="100" text-anchor="middle" font-size="12">① tool_search</text>' +
+    '<rect class="dg-box" x="235" y="70" width="150" height="50" rx="8"/><text class="dg-text" x="310" y="100" text-anchor="middle" font-size="12">② tool_describe</text>' +
+    '<rect class="dg-box accent" x="460" y="70" width="150" height="50" rx="8"/><text class="dg-text" x="535" y="100" text-anchor="middle" font-size="12">③ tool_call</text>' +
+    '<path class="dg-line" d="M160 95 L235 95" marker-end="url(#arr11)"/>' +
+    '<path class="dg-line" d="M385 95 L460 95" marker-end="url(#arr11)"/>' +
+    '<text class="dg-mono" x="85" y="140" text-anchor="middle" font-size="10">搜尋候選工具</text>' +
+    '<text class="dg-mono" x="310" y="140" text-anchor="middle" font-size="10">載入完整 schema</text>' +
+    '<text class="dg-mono" x="535" y="140" text-anchor="middle" font-size="10">真正呼叫，等同直接呼叫</text>' +
+    '<defs><marker id="arr11" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path class="dg-arrow" d="M0,0 L6,3 L0,6 z"/></marker></defs>' +
+  '</svg><div class="cap">看到名字就能跳過①直接②——只有完全不知道有哪些工具時才需要搜尋。</div></div>' +
+  '<h4>三層退化（tiered disclosure）</h4>' +
+  '<div class="table-wrap"><table><tr><th>層級</th><th>觸發條件</th><th>模型看到什麼</th></tr>' +
+    '<tr><td>Tier 0</td><td>沒有可延後的 MCP／外掛工具</td><td>全部照舊，直接列出，無橋接</td></tr>' +
+    '<tr><td>Tier 1</td><td>延後工具的清單塞得進預算</td><td>橋接工具 ＋ 每個延後工具的名稱＋簡短描述（類似 skills 的清單模式）</td></tr>' +
+    '<tr><td>Tier 2</td><td>連「只列名稱」都塞不下（例如某個 MCP 伺服器本身就有數千個工具）</td><td>只剩橋接工具 ＋ 每個伺服器一行的摘要，個別工具只能靠搜尋發現</td></tr>' +
+  '</table></div>' +
+  '<p>Tier 1 的「清單」很關鍵：如果完全不給任何線索，模型容易忘記某個能力存在，改用它已知的其他工具硬做，或乾脆宣稱做不到。保留一份輕量清單，讓每個能力至少「知道存在」，只是細節參數延後載入。</p>' +
+'</div>';
+
+BODY[12] =
+'<div class="section">' +
+  '<p>Skills 是 agent 隨選載入的知識文件——不是工具（工具是「能力」），而是「怎麼做一件事的說明書」。跟第 5 章的記憶系統是互補關係：記憶存的是「小而持久的事實」，skill 存的是「長而完整的流程」。</p>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>漸進式揭露：三個層級</h3>' +
+  '<div class="table-wrap"><table><tr><th>層級</th><th>回傳內容</th><th>成本</th></tr>' +
+    '<tr><td>Level 0 — <span class="mono">skills_list()</span></td><td>每個 skill 的名稱＋描述＋分類</td><td>約 3k token，一直存在</td></tr>' +
+    '<tr><td>Level 1 — <span class="mono">skill_view(name)</span></td><td>完整內容＋metadata</td><td>視 skill 大小，真正要用才載入</td></tr>' +
+    '<tr><td>Level 2 — <span class="mono">skill_view(name, path)</span></td><td>某個特定的參考檔案（<span class="mono">references/</span> 底下）</td><td>只在需要那份細節時才載入</td></tr>' +
+  '</table></div>' +
+  '<p>這讓一個 skill 可以龐大而不昂貴：像 <span class="mono">/learn</span> 把一整本書變成 skill 時，不會硬塞成一個巨大檔案，而是產出一份精簡的 <span class="mono">SKILL.md</span>（核心心智模型＋索引），每個章節各自一份 <span class="mono">references/</span> 檔案，查詢成本只跟「答案需要的那一小塊」成正比，不跟整本書的大小成正比。</p>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>三層優先權：專案先於個人，個人先於外部</h3>' +
+  '<div class="table-wrap"><table><tr><th>層級</th><th>位置</th><th>誰能修改</th></tr>' +
+    '<tr><td>Project（最高優先權）</td><td class="mono">&lt;repo&gt;/.hermes/skills/</td><td>Curator 永不觸碰；agent 新建的 skill 永遠寫到 local，不會寫進這裡</td></tr>' +
+    '<tr><td>Local（唯一寫入點）</td><td class="mono">~/.hermes/skills/</td><td>agent 可自由建立／修改／刪除</td></tr>' +
+    '<tr><td>External dirs</td><td>設定檔指定的額外目錄</td><td>如果該目錄本身可寫，agent 更新一樣會改到那裡</td></tr>' +
+  '</table></div>' +
+  '<p>Project skill 雖然優先權最高，卻也是<strong>最不被信任</strong>的一層——因為它跟著 <span class="mono">git pull</span> 一起變動，內容可能被別人動過手腳。所以每次載入前都會重新跑一次安全掃描（scan-time quarantine），一旦掃到「危險」等級的內容（例如藏著要求外洩憑證的指令），直接從索引裡隱藏，連名稱都叫不出來，而不是載入後才提示風險。</p>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>Skills Hub：多來源的套件管理器</h3>' +
+  '<p>Skills 有一個像套件管理器一樣的生態：可以從官方目錄、第三方市集、甚至任意 GitHub repo 安裝，安裝前都會過同一套安全掃描：</p>' +
+  '<div class="table-wrap"><table><tr><th>來源</th><th>信任等級</th></tr>' +
+    '<tr><td>bundled（隨 Hermes 附帶）</td><td>永遠信任</td></tr>' +
+    '<tr><td>official（repo 內建的選用 skill）</td><td>內建信任，不顯示第三方警告</td></tr>' +
+    '<tr><td>trusted（如 openai/skills、anthropics/skills）</td><td>比一般社群來源寬鬆的政策</td></tr>' +
+    '<tr><td>community（skills.sh、自訂 GitHub repo、大多數市集）</td><td>非危險等級的發現可以用 <span class="mono">--force</span> 覆蓋；「danger」等級無法覆蓋</td></tr>' +
+  '</table></div>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>Curator：防止 skill 庫無限增生的背景維護者</h3>' +
+  '<p>每次 agent 解決一個新問題並把做法存成 skill，<span class="mono">~/.hermes/skills/</span> 就多一個檔案。沒有維護機制的話，最後會累積出大量狹窄、彼此重疊的近似 skill，污染索引又浪費 token。Curator 正是為此而生的背景維護程序，分兩個階段：</p>' +
+  '<div class="table-wrap"><table><tr><th>階段</th><th>行為</th><th>成本</th></tr>' +
+    '<tr><td>自動轉換（決定性，預設開）</td><td>閒置 30 天 → stale；閒置 90 天 → archived（移到 <span class="mono">.archive/</span>，可還原，從不真正刪除）</td><td>零，不呼叫模型</td></tr>' +
+    '<tr><td>LLM 整併（consolidate，預設關）</td><td>審視有重疊的 skill，決定保留／修補／合併成「傘狀」skill／歸檔</td><td>一次完整審查通常要跑 50–100 次 aux-model 呼叫</td></tr>' +
+  '</table></div>' +
+  '<p>Curator 只管「agent-created」的 skill——判定條件很窄：不在 bundled 清單、不在 hub 安裝清單、而且 <span class="mono">.usage.json</span> 裡明確標記由背景自我改進審查建立。你當場請 agent 建立的 skill，或手動寫的 <span class="mono">SKILL.md</span>，一律被視為「你的」東西，Curator 不會主動碰，除非你用 <span class="mono">curator adopt</span> 明確交出去。</p>' +
+  '<h4>兩種保護：pin 與備份</h4>' +
+  '<p><strong>Pin</strong> 保護一個 skill 不被刪除——擋住 Curator 的自動歸檔，也擋住 agent 的 <span class="mono">skill_manage(delete)</span>，但<em>不擋</em> patch／edit，因為你通常還是希望內容能被持續改進。<strong>備份</strong> 則是另一層安全網：每次真正的 Curator 執行前，會先把整個 skills 目錄打包快照；如果某次執行影響到你不想變動的內容，<span class="mono">hermes curator rollback</span> 一鍵整批復原；更精細的單筆操作還有一份逐筆的稽核帳本（ledger），連單一次修改都能單獨回滾。</p>' +
+'</div>';
+
+BODY[13] =
+'<div class="section">' +
+  '<p><span class="mono">回顧第 5 章</span>：MEMORY.md／USER.md（精選、有上限、自動注入）與 session_search（無限、隨選查詢）是「永遠存在」的兩層。這一章談的是三種<em>選用的擴充</em>：換一個更強大的外部記憶引擎、讓專案自己攜帶規則、以及在訊息裡直接用 <span class="mono">@</span> 把檔案內容塞進對話。</p>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>External Memory Providers：疊加，不是取代</h3>' +
+  '<p>Hermes 內建 8 種外部記憶 provider 插件，同一時間<strong>只能啟用一個</strong>，但它跟內建記憶永遠並存——啟用後，Hermes 會自動把 provider 的上下文注入 system prompt、在每輪對話前背景預抓相關記憶、每輪結束後同步對話內容、並鏡射內建記憶的寫入。</p>' +
+  '<div class="table-wrap"><table><tr><th>Provider</th><th>儲存位置</th><th>特色能力</th></tr>' +
+    '<tr><td>Honcho</td><td>雲端／自架</td><td>dialectic 推理式使用者建模＋session 情境注入</td></tr>' +
+    '<tr><td>OpenViking</td><td>自架</td><td>檔案系統式知識階層＋分層讀取</td></tr>' +
+    '<tr><td>Mem0</td><td>雲端／自架／in-process</td><td>伺服端 LLM 自動事實抽取＋去重</td></tr>' +
+    '<tr><td>Hindsight</td><td>雲端／本地 PostgreSQL</td><td>知識圖譜＋跨記憶綜合推理（reflect）</td></tr>' +
+    '<tr><td>Holographic</td><td>本地 SQLite</td><td>零依賴，HRR 代數查詢＋信任分數</td></tr>' +
+    '<tr><td>RetainDB</td><td>雲端</td><td>Vector＋BM25＋Rerank 混合搜尋</td></tr>' +
+    '<tr><td>ByteRover</td><td>本地優先／雲端同步</td><td>壓縮前搶救——context 壓縮丟掉細節前先萃取重點</td></tr>' +
+    '<tr><td>Supermemory</td><td>雲端／自架</td><td>語意長期記憶＋session 結束時寫入 Supermemory graph</td></tr>' +
+  '</table></div>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>Honcho 深入：兩層情境注入</h3>' +
+  '<p>Honcho 值得多花篇幅，因為它示範了一個成熟外部記憶 provider 的完整設計：</p>' +
+  '<ul>' +
+    '<li><strong>基礎層（base）</strong>——session 摘要＋使用者側寫＋雙方的「peer card」，由 <span class="mono">contextCadence</span> 控制多久刷新一次（純 API 呼叫，不含 LLM 推理）。</li>' +
+    '<li><strong>辯證層（dialectic）</strong>——LLM 綜合推理出「這個使用者現在真正需要什麼」，由 <span class="mono">dialecticCadence</span> 控制觸發頻率，還能設定 <span class="mono">dialecticDepth</span>（1–3 次連續推理：初判 → 自我審查 → 調和矛盾）。</li>' +
+  '</ul>' +
+  '<p>這兩個旋鈕彼此正交：可以「每輪都刷新基礎資訊，但深度推理每 5 輪才跑一次」——新鮮度和成本可以分開調整。系統啟動時還會在背景搶跑一次辯證推理（prewarm），避免使用者第一句話就撞上一次同步、有延遲的 LLM 呼叫。</p>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>Context Files：專案怎麼「自我介紹」</h3>' +
+  '<p>Hermes 會自動探索並載入幾種專案情境檔案，決定「這個 agent 現在該表現得像什麼樣子」：</p>' +
+  '<div class="table-wrap"><table><tr><th>檔案</th><th>用途</th><th>探索範圍</th></tr>' +
+    '<tr><td class="mono">.hermes.md</td><td>專案指示（最高優先權）</td><td>走到 git root</td></tr>' +
+    '<tr><td class="mono">AGENTS.md</td><td>專案結構、慣例、架構</td><td>啟動目錄＋逐步探索子目錄</td></tr>' +
+    '<tr><td class="mono">CLAUDE.md</td><td>相容 Claude Code 的情境檔案</td><td>同上</td></tr>' +
+    '<tr><td class="mono">SOUL.md</td><td>全域人格身份（見第 15 章）</td><td>只從 HERMES_HOME 讀取，不看工作目錄</td></tr>' +
+    '<tr><td class="mono">.cursorrules</td><td>相容 Cursor IDE 的慣例</td><td>只看工作目錄</td></tr>' +
+  '</table></div>' +
+  '<p>同一個 session 只會選<strong>一種</strong>專案情境類型（<span class="mono">.hermes.md</span> → <span class="mono">AGENTS.md</span> → <span class="mono">CLAUDE.md</span> → <span class="mono">.cursorrules</span>，第一個命中就用它），但 <span class="mono">AGENTS.md</span> 本身允許「整條鏈」合併：從 git root 到工作目錄，途中每一層的 <span class="mono">AGENTS.md</span> 都會載入，越深層的排在越後面，天然取得較高優先權。</p>' +
+  '<h4>漸進式子目錄發現</h4>' +
+  '<p>啟動時只載入工作目錄那一份；當 agent 之後用 <span class="mono">read_file</span>／<span class="mono">terminal</span> 碰到其他子目錄，才順帶去看那個子目錄有沒有自己的 <span class="mono">AGENTS.md</span>，命中就注入到當下那次工具結果裡。好處有兩個：system prompt 不會被整個 monorepo 的規則塞爆，而且因為 system prompt 內容本身不變，prompt cache 也不會被打斷（呼應第 4 章）。</p>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>Context References：把檔案手動塞進這一句話</h3>' +
+  '<p>在訊息裡打 <span class="mono">@</span> 可以直接把內容展開進對話，不用等 agent 自己去讀：</p>' +
+  '<div class="table-wrap"><table><tr><th>語法</th><th>效果</th></tr>' +
+    '<tr><td class="mono">@file:path</td><td>注入檔案內容（可加 <span class="mono">:10-25</span> 限定行號範圍）</td></tr>' +
+    '<tr><td class="mono">@folder:path</td><td>注入目錄樹列表</td></tr>' +
+    '<tr><td class="mono">@diff / @staged</td><td>注入 git diff（未／已 staged）</td></tr>' +
+    '<tr><td class="mono">@git:N</td><td>注入最近 N 個 commit（上限 10）</td></tr>' +
+    '<tr><td class="mono">@url:https://…</td><td>抓取網頁內容並注入</td></tr>' +
+  '</table></div>' +
+  '<p>這裡也有配額保護，跟第 4 章的精神一致：超過 context 長度 <strong>25%</strong> 只加警告照樣展開，超過 <strong>50%</strong> 直接拒絕展開、原始訊息維持不變——避免一次引用就把整輪對話的預算吃光。這個語法在 CLI 與訊息平台（Telegram、Discord 等）都會展開——gateway 收到訊息時只要文字裡含有 <span class="mono">@</span> 就會呼叫同一套 <span class="mono">preprocess_context_references_async</span> 邏輯；只有部分官方文件仍寫著『僅限 CLI』，已經跟目前程式碼行為不一致。</p>' +
+'</div>';
+
+BODY[14] =
+'<div class="section">' +
+  '<p>Mixture of Agents（MoA）不是另一套 agent 迴圈，而是一個<strong>虛擬的 model provider</strong>——選它就跟選任何一個模型一樣，差別是它背後其實跑了好幾個模型的意見再匯總成一個回答，同時維持第 2、3 章講的那套迴圈行為（工具呼叫、中斷、逐字稿照常）。</p>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>兩種角色：Aggregator 才是真正動手的那個</h3>' +
+  '<p>一個 MoA preset 裡有兩種模型槽位，分工完全不對稱：</p>' +
+  '<ul>' +
+    '<li><strong>Reference models（顧問）</strong>——不帶工具 schema、不帶 Hermes 的真實系統提示／工具逐字稿，但會被套上一段固定的『顧問角色』系統提示（說明自己不是動手的 agent、不能呼叫工具），再加上對話的使用者/助手文字，回一段分析。刻意設計得「輕」，好讓多顧問並行的成本可控。</li>' +
+    '<li><strong>Aggregator（真正動手的那個）</strong>——收到所有顧問的分析當作私有參考資料後，用完整的 Hermes 工具 schema 出手：寫回應、呼叫工具，就是外界看到的「模型的回答」。</li>' +
+  '</ul>' +
+  '<div class="diagram"><svg viewBox="0 0 620 210" width="100%" height="210" role="img" aria-label="MoA 一輪流程">' +
+    '<rect class="dg-box" x="20" y="20" width="140" height="44" rx="8"/><text class="dg-text" x="90" y="46" text-anchor="middle" font-size="11">Reference A</text>' +
+    '<rect class="dg-box" x="20" y="76" width="140" height="44" rx="8"/><text class="dg-text" x="90" y="102" text-anchor="middle" font-size="11">Reference B</text>' +
+    '<rect class="dg-box accent" x="260" y="48" width="150" height="60" rx="8"/><text class="dg-text" x="335" y="82" text-anchor="middle" font-weight="600" font-size="12">Aggregator</text>' +
+    '<path class="dg-line" d="M160 42 L260 65" marker-end="url(#arr14)"/>' +
+    '<path class="dg-line" d="M160 98 L260 88" marker-end="url(#arr14)"/>' +
+    '<rect class="dg-box" x="470" y="48" width="130" height="60" rx="8"/><text class="dg-text" x="535" y="72" text-anchor="middle" font-size="11">工具呼叫</text><text class="dg-mono" x="535" y="90" text-anchor="middle" font-size="9">照第 3 章正常執行</text>' +
+    '<path class="dg-line" d="M410 78 L470 78" marker-end="url(#arr14)"/>' +
+    '<text class="dg-mono" x="90" y="145" text-anchor="middle" font-size="10">附加為私有參考資料</text>' +
+    '<defs><marker id="arr14" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path class="dg-arrow" d="M0,0 L6,3 L0,6 z"/></marker></defs>' +
+  '</svg><div class="cap">下一輪迭代（例如工具結果回來後）整個 MoA 流程會重跑一次。</div></div>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>為什麼不會打斷 prompt 快取</h3>' +
+  '<p>呼應第 4 章：快取是前綴比對，前面任何一個 byte 變了，後面全部失效。MoA 刻意把顧問的分析附加在<strong>最新這一輪使用者訊息的尾端</strong>——落在系統提示與歷史這個穩定前綴之<em>後</em>，所以不會讓前面已經快取住的內容失效。這跟每輪新增一句使用者訊息的效果完全一樣，代價只有「多跑了幾次顧問呼叫」，不是「破壞了快取」。</p>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>成本旋鈕：顧問多久重跑一次</h3>' +
+  '<p>顧問的呼叫頻率（fanout）直接決定成本，因為一輪對話的總耗時取決於最慢的那個顧問：</p>' +
+  '<div class="table-wrap"><table><tr><th>模式</th><th>行為</th><th>取捨</th></tr>' +
+    '<tr><td class="mono">user_turn</td><td>每個使用者回合只跑一次顧問（預設）</td><td>最省，成本不隨工具呼叫次數增加</td></tr>' +
+    '<tr><td class="mono">per_iteration</td><td>每一次工具呼叫迭代都重跑顧問</td><td>意見永遠跟上最新結果，但延遲與花費隨工具呼叫次數等比增加</td></tr>' +
+    '<tr><td class="mono">every_n:N</td><td>第一次迭代跑，之後每 N 次迭代重跑一次</td><td>折衷方案——中間步驟沿用快取的舊建議</td></tr>' +
+  '</table></div>' +
+'</div>';
+
+BODY[15] =
+'<div class="section">' +
+  '<h3>SOUL.md：只從一個地方讀，不看你在哪個專案</h3>' +
+  '<p>第 13 章提過 SOUL.md 是被載入的情境檔案之一，這裡把它攤開講清楚。<strong>SOUL.md 佔system prompt 的第一個位置</strong>，定義 agent 是誰——而且它<strong>只從 <span class="mono">HERMES_HOME</span> 讀取</strong>，完全不看你目前的工作目錄。這是刻意設計：如果人格是照專案目錄找的，同一個 Hermes 在不同專案下會表現出不一樣的「性格」，違背「這是同一個助理」的直覺。人格屬於這個 Hermes <em>實例</em>，不屬於你剛好在哪個資料夾下啟動它。</p>' +
+  '<div class="callout"><span class="k">SOUL.md vs AGENTS.md vs /personality</span>' +
+    '<p>三者分工不同：<strong>SOUL.md</strong> 是跨情境都成立的持久語氣與身份（要跟隨你到任何專案的東西）；<strong>AGENTS.md</strong> 是屬於單一專案的架構、慣例、路徑（換個專案就不成立的東西）；<strong>/personality</strong> 是 session 層級的臨時覆蓋層（這次對話想暫時換個模式，下一句話又能切回來）。判斷準則很簡單：會跟著你到處走的東西放 SOUL.md，屬於某個專案的東西放 AGENTS.md。</p>' +
+  '</div>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>完整的 System Prompt 堆疊</h3>' +
+  '<p>把所有章節提到的注入來源攤開，一輪對話送出去的 system prompt 實際上是這樣一層層疊起來的：</p>' +
+  '<div class="table-wrap"><table><tr><th>順序</th><th>來源</th><th>對應章節</th></tr>' +
+    '<tr><td>1</td><td>SOUL.md（身份，找不到時退回內建預設）</td><td>本章</td></tr>' +
+    '<tr><td>2</td><td>工具行為指引與模型導向 guidance（文件指引、任務完成、平行工具呼叫、steer、tool-use enforcement 等）</td><td>第 3、8 章</td></tr>' +
+    '<tr><td>3</td><td>環境／平台線索（環境探測、bot mode、profile 提示、平台格式提示）</td><td>第 9 章</td></tr>' +
+    '<tr><td>4</td><td>情境檔案（AGENTS.md、.cursorrules）</td><td>第 13 章</td></tr>' +
+    '<tr><td>5</td><td>Skills 索引</td><td>第 12 章</td></tr>' +
+    '<tr><td>6</td><td>記憶／使用者情境（MEMORY.md、USER.md、外部 provider）</td><td>第 5、13 章</td></tr>' +
+    '<tr><td>7</td><td>時間戳（含 session id／model／provider／platform）</td><td>—</td></tr>' +
+    '<tr><td>8</td><td>選用的 <span class="mono">/personality</span> 覆蓋層 —— 注意：這不是同一支被快取的字串裡的第 8 塊，而是在整包 system prompt 組完、快取之後，每次呼叫 API 時另外串接上去的（<span class="mono">ephemeral_system_prompt</span>），完全不進入前 7 項所在的快取字串</td><td>本章</td></tr>' +
+  '</table></div>' +
+  '<p>這張表呈現的，是這堂課從第 1 章到現在，各章各自負責的那一層在 system prompt 裡的落點。</p>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>外觀跟人格是兩件事：Skins</h3>' +
+  '<p>Skin 只管 CLI 的<strong>視覺呈現</strong>——banner 顏色、spinner 動畫、回應框標籤，跟 SOUL.md／personality 完全正交（換 skin 不會改變說話語氣，換 personality 也不會改變終端機配色）。自訂 skin 是一份 YAML，只需要寫「跟預設不一樣的地方」，其餘欄位自動繼承 default skin。</p>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>Plugins：四種類型，不同的啟用邏輯</h3>' +
+  '<p>「外掛系統」不是單一機制，而是四種性質不同的擴充點：</p>' +
+  '<div class="table-wrap"><table><tr><th>類型</th><th>做什麼</th><th>怎麼選</th></tr>' +
+    '<tr><td>一般 plugin</td><td>新增工具／hook／slash command</td><td>多選——每個獨立開關</td></tr>' +
+    '<tr><td>記憶 provider</td><td>第 13 章的 8 種外部記憶引擎</td><td>單選——同時只能有一個啟用</td></tr>' +
+    '<tr><td>Context engine</td><td>取代內建的 context 壓縮器（第 4 章）</td><td>單選</td></tr>' +
+    '<tr><td>Model provider</td><td>宣告一個推理後端（第 8 章講過的 provider 抽象層，實際上就是這個）</td><td>多個同時註冊，用 <span class="mono">--provider</span> 挑一個用</td></tr>' +
+  '</table></div>' +
+  '<p>啟用邏輯也不對稱：<strong>Bundled「隨開即用」基礎設施</strong>（內建平台轉接器、預設影像生成後端等）會自動載入，讓基本功能不因為要手動開關而壞掉；<strong>第三方一般 plugin</strong> 則完全相反，預設全部關閉，必須明確加進 <span class="mono">plugins.enabled</span> 才會真的執行任何程式碼——這是不讓第三方程式碼未經同意就運作的底線。</p>' +
+  '<h4>Capability 同意機制：不是沙箱</h4>' +
+  '<p>一個 plugin 如果想要更高權限（例如覆蓋內建工具、指定模型），要在自己的 manifest 裡明確宣告，安裝時系統會列出這些權限並要求你確認一次；同意記錄會連同一份雜湊值存起來，之後升級要求新增權限時會再問一次——權限永遠不會被默默擴大。</p>' +
+  '<div class="callout warn"><span class="k">誠實的邊界</span><p>這套機制是<strong>同意與稽核層</strong>，不是沙箱。Plugin 是跟主程式同一個行程執行的一般 Python 程式碼，一個惡意作者仍然可以無視這些檢查點。授予一個能力，本質上是對這個作者的信任聲明，不是程式碼審查——只安裝你信任來源的 plugin，才是管用的防線。</p></div>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>Built-in Plugins：三個代表性範例</h3>' +
+  '<p>即使是「隨附」的 plugin，也一樣走 hook／工具這套通用外掛介面，只是碰巧維護在 repo 裡：</p>' +
+  '<ul>' +
+    '<li><strong>disk-cleanup</strong>——用 <span class="mono">post_tool_call</span> hook 默默追蹤寫檔案時產生的暫存檔（測試腳本、cron 輸出），<span class="mono">on_session_end</span> 時清掉過期的，全程不需要 agent 自行清理。</li>' +
+    '<li><strong>security-guidance</strong>——在 <span class="mono">write_file</span>／<span class="mono">patch</span> 寫入內容比對到已知危險模式（不安全反序列化、指令注入、XSS 破口等 25 條規則）時，附加一段警告到工具結果裡；預設是「警告不阻擋」，因為模式比對本身有一定的誤判率。</li>' +
+    '<li><strong>observability/langfuse</strong>——把每一輪對話、每次模型呼叫、每次工具呼叫都送一筆追蹤紀錄到 Langfuse，呼應第 10 章「可觀測性」那一節——這就是「結構化日誌＋追蹤」在真實系統裡具體落地的樣子。</li>' +
+  '</ul>' +
+'</div>';
+
+BODY[16] =
+'<div class="section">' +
+  '<h3>語法正確，不等於沒問題</h3>' +
+  '<p>第 3 章工具呼叫協定裡提過的「工具執行失敗」是執行期錯誤；LSP 處理的是另一個層次——<strong>寫出來的程式碼語法上完全合法，但語意上是錯的</strong>：呼叫了不存在的函式、把字串傳給要求整數的參數、忘了 import。純語法檢查（<span class="mono">ast.parse</span> 之類）完全抓不到這類問題，只有真正理解型別與作用域的語言伺服器才抓得出來。</p>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>什麼時候會啟動</h3>' +
+  '<p>LSP 被 gate 在「目前是否在 git 專案裡」這個條件上——當工作目錄在 git repo 內，才會針對這個工作區啟動語言伺服器；不在 git repo 裡（例如訊息平台 gateway 常見的、工作目錄就是使用者家目錄的情境）就完全不啟動，安靜地退回純語法檢查。</p>' +
+  '<h4>兩層檢查，各自獨立</h4>' +
+  '<p>每次成功的 <span class="mono">write_file</span> 或 <span class="mono">patch</span> 之後：</p>' +
+  '<ol>' +
+    '<li>先跑<strong>進程內語法檢查</strong>（微秒級，例如 Python 的 <span class="mono">ast.parse</span>）——這是 <span class="mono">lint</span> 欄位的內容。</li>' +
+    '<li>語法乾淨的話，再查語言伺服器，取得<strong>語意層診斷</strong>——這是 <span class="mono">lsp_diagnostics</span> 欄位的內容。</li>' +
+  '</ol>' +
+  '<p>一個檔案完全可能「<span class="mono">lint: ok</span>，但 <span class="mono">lsp_diagnostics</span> 裡列著型別錯誤」——兩個管道各自獨立回報，語言伺服器掛掉或缺裝，也只會讓 <span class="mono">lsp_diagnostics</span> 沈默地退回空白，不會讓整個寫入動作失敗。</p>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>只回報「這次編輯造成的」新問題</h3>' +
+  '<p>具體流程是：先擷取這個檔案<strong>目前的</strong>診斷基準線 → 執行寫入 → 重新查詢語言伺服器 → 過濾掉基準線裡已經存在的診斷，只留下寫入後<strong>新出現</strong>的。這保證 agent 看到的永遠是「我這次編輯造成的問題」，不是這個檔案本來就有、跟這次修改無關的舊錯誤。</p>' +
+  '<p>診斷結果還是<strong>新鮮度守門的（freshness-gated）</strong>：只有語言伺服器針對「這次編輯後的內容」重新產生的診斷才算數。如果伺服器還沒跟上（例如 rust-analyzer 正在重新索引整個專案），系統寧可回報「沒有資料」，也不會把編輯前的舊錯誤誤植成這次造成的問題。</p>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>覆蓋範圍與運作特性</h3>' +
+  '<p>支援約 26 種語言的真正語言伺服器（pyright、gopls、rust-analyzer、typescript-language-server、clangd 等），支援自動安裝的，會在第一次用到時裝好。幾個值得記住的運作特性：</p>' +
+  '<ul>' +
+    '<li><strong>懶啟動（lazy-spawn）</strong>——沒編輯過某語言的檔案就不會啟動對應的伺服器，第一次編輯才花 1–3 秒（有些語言更久）啟動。</li>' +
+    '<li><strong>閒置回收（idle reaping）</strong>——伺服器閒置超過設定時間（預設 600 秒）會自動關閉釋放資源，下次需要時自動重新啟動，避免一個跑很久、碰過很多不同專案的 gateway process 累積出一堆永遠不會被關掉的語言伺服器行程。</li>' +
+    '<li><strong>失敗永遠優雅退回</strong>——語言伺服器沒裝、崩潰、逾時，都只會讓那一次的 <span class="mono">lsp_diagnostics</span> 是空的，絕不會讓 <span class="mono">write_file</span>／<span class="mono">patch</span> 本身失敗。</li>' +
+  '</ul>' +
+'</div>';
+
+render();
+
+})();
+</script>
