@@ -151,7 +151,6 @@ a{color:var(--accent);}
 .chnav li[data-state="active"] .chnode .t{ color:var(--accent-strong); font-weight:600; }
 .chnav li[data-state="passed"] .chnode .dot{ background:var(--pass); border-color:var(--pass); color:var(--pass-soft); }
 .chnav li[data-state="passed"] .chnode .dot::after{ content:"✓"; }
-.chnav li[data-state="locked"] .chnode{ cursor:not-allowed; opacity:.55; }
 .chnav li[data-state="soon"] .chnode{ cursor:default; }
 .chnav li[data-state="soon"] .chnode .dot{ border-style:dashed; }
 
@@ -277,13 +276,13 @@ pre.code .n{ color:var(--code-num); }
     </div>
 
     <div class="progress-block">
-      <div class="progress-label"><span>課程進度</span><b id="progress-text">0 / 16</b></div>
+      <div class="progress-label"><span>課程進度</span><b id="progress-text">0 / 17</b></div>
       <div class="meter" id="meter"></div>
     </div>
 
     <ul class="chnav" id="chnav"></ul>
 
-    <div class="rail-foot">CH.<span id="foot-cur">01</span> / 16 &nbsp;·&nbsp; 專案式學習</div>
+    <div class="rail-foot">CH.<span id="foot-cur">01</span> / 17 &nbsp;·&nbsp; 專案式學習</div>
   </nav>
 
   <main>
@@ -310,7 +309,8 @@ var CH = [
   {n:13, key:"記憶擴充／情境", title:"記憶擴充層與情境注入", dek:"內建記憶之外還能接什麼、專案規則怎麼被找到、@ 語法怎麼把檔案塞進對話。", status:"ready"},
   {n:14, key:"Mixture of Agents", title:"Mixture of Agents", dek:"讓好幾個模型的意見匯總成一個回答，同時不打斷 prompt 快取。", status:"ready"},
   {n:15, key:"個性／外掛生態", title:"個性、外觀與外掛生態", dek:"SOUL.md 怎麼定義身份、外觀跟人格為何是兩件事、外掛系統的同意機制。", status:"ready"},
-  {n:16, key:"LSP", title:"LSP — 語意診斷", dek:"語法正確不等於沒問題。真正的語言伺服器怎麼被接進寫檔案這個動作裡。", status:"ready"}
+  {n:16, key:"LSP", title:"LSP — 語意診斷", dek:"語法正確不等於沒問題。真正的語言伺服器怎麼被接進寫檔案這個動作裡。", status:"ready"},
+  {n:17, key:"Prompt 全覽", title:"Prompt 全覽：所有提示詞模板長怎樣", dek:"一個 harness 不是只有一份 system prompt——壓縮摘要、subagent 任務、Curator 審查、session 命名，各自有各自的模板跟注入的資訊。把它們攤開來看。", status:"ready"}
 ];
 
 var QUIZ = {
@@ -430,13 +430,17 @@ var QUIZ = {
     {q:"為什麼子 Agent 預設不能再呼叫 delegate_task（不能生出『孫子』Agent）？",
      opts:["技術上做不到，工具沒有實作","避免委派深度失控，預設是扁平的（max_spawn_depth: 1），要 orchestrator 角色並主動調高深度才能開多層"],
      correct:1,
-     explain:"這是一個防呆邊界：沒有深度限制的委派樹很容易失控增殖。多數子 Agent 是『leaf』角色，只有明確設成 orchestrator 才能繼續往下委派。"}
+     explain:"這是一個防呆邊界：沒有深度限制的委派樹很容易失控增殖。多數子 Agent 是『leaf』角色，只有明確設成 orchestrator 才能繼續往下委派。"},
+    {q:"模型只會輸出文字／JSON，它是怎麼『生出』一個真正在跑的子 Agent 的？",
+     opts:["模型的輸出裡包含一段可執行的程式碼，由 harness 直接 exec 執行","模型只吐出跟呼叫其他工具一樣的 JSON（delegate_task 的參數）；harness 收到後，用跟父 Agent 一樣的 AIAgent 類別重新建構一個新物件，丟進另一條執行緒跑它自己的 run_conversation()","模型呼叫作業系統層級的 API，直接開一個新行程"],
+     correct:1,
+     explain:"委派不是工具呼叫協定以外的新機制——模型端的輸出形狀完全沒變，差別只在於這個工具的 handler（tools/delegate_tool.py）選擇的『執行方式』是遞迴建構並跑一個新的 AIAgent，而不是讀檔案或跑 shell 指令。子 Agent 運行在同一個行程的另一條執行緒上，不是新行程。"}
   ],
   8: [
     {q:"一個新工具要怎麼被系統發現、變成模型可以呼叫的東西？",
      opts:["要手動加進一份總表清單裡","只要在 tools/ 底下的檔案『頂層』呼叫 registry.register()，discover_builtin_tools() 就會自動用 AST 掃描並匯入該檔案","要重新編譯整個專案"],
      correct:1,
-     explain:"這是『自我註冊＋自動發現』模式：不用維護一份手動清單，只要照約定的方式呼叫 registry.register()，開機時的 AST 掃描會自己找到它。"},
+     explain:"呼叫 registry.register() 這一行還是要手寫，這點跟『手動總表』沒有不同；差別在於這一行寫在工具自己的檔案裡，不是寫在另一份跟工具程式碼分開的總表裡——系統裡不存在任何一份要手動同步的工具清單，開機時的 AST 掃描會自己找到有呼叫 register() 的檔案並匯入它。"},
     {q:"toolset_distributions.py 是做什麼用的？",
      opts:["決定執行期哪些工具會出現在模型面前","只給 batch_runner.py 用的機率抽樣器，用來合成訓練資料，跟真正的執行期工具可用性完全無關"],
      correct:1,
@@ -512,7 +516,11 @@ var QUIZ = {
     {q:"Skill 的 pin（釘選）機制保護的範圍是什麼？",
      opts:["完全鎖死，連 agent 的 patch／edit 都無法再修改內容","只擋刪除——Curator 的自動歸檔和 agent 的 skill_manage(delete) 都會被擋下來，但 patch／edit 仍然可以正常進行","只在 Curator 執行 LLM 整併時才生效，其他時候沒作用"],
      correct:1,
-     explain:"這個不對稱是刻意的：你想保護一個 skill 不被誤刪，但通常還是希望它的內容能持續被改進、修正錯誤——pin 只鎖『存在與否』，不鎖『內容能不能變好』。"}
+     explain:"這個不對稱是刻意的：你想保護一個 skill 不被誤刪，但通常還是希望它的內容能持續被改進、修正錯誤——pin 只鎖『存在與否』，不鎖『內容能不能變好』。"},
+    {q:"預設安裝、什麼都沒改設定的情況下，LLM 整併（consolidate）多久會自動跑一次？",
+     opts:["每次 CLI 啟動都會跑一次","符合『距上次執行超過 7 天且機器閒置超過 2 小時』時，Curator 才會被觸發——但即使觸發了，預設也只做免費的自動轉換；LLM 整併還需要額外設定 curator.consolidate: true 才會發生，否則永遠不會自動跑","從不自動觸發，只能靠 cron 排程"],
+     correct:1,
+     explain:"這裡有兩層獨立的閘門：先要滿足『多久沒跑＋機器夠閒』才會觸發 Curator 本身；觸發了也只保證跑免費的自動轉換，真正花錢的 LLM 整併還要另外主動打開 consolidate，兩個閘門都通過才會真的發生 LLM 呼叫。"}
   ],
   13: [
     {q:"外部 memory provider（如 Honcho、Mem0）跟內建的 MEMORY.md／USER.md 是什麼關係？",
@@ -573,6 +581,24 @@ var QUIZ = {
      opts:["兩個是同一件事，只是新舊命名","lint 是微秒級的純語法檢查（例如 ast.parse）；lsp_diagnostics 是真正語言伺服器產生的語意層診斷（型別錯誤、未定義名稱等）——兩個管道各自獨立","lint 檢查前端，lsp_diagnostics 檢查後端"],
      correct:1,
      explain:"一個檔案完全可能『語法乾淨（lint: ok）但語意上有問題（lsp_diagnostics 非空）』——例如變數名稱打錯字，語法上完全合法，只有真正理解型別的語言伺服器才抓得出來。"}
+  ],
+  17: [
+    {q:"hermes-agent 裡「輔助任務用的 prompt」（壓縮摘要、Curator 審查、session 命名⋯）彼此之間，模型解析用哪個模型，是各自獨立設定的嗎？",
+     opts:["對，每個任務各自寫死一個模型，互不相干","不是——全部都走同一套三層解析鏈（任務專屬設定 → provider 的 default_aux_model → 主模型），只是各自用不同的任務名稱（如 auxiliary.compression.model／auxiliary.curator.model／auxiliary.title_generation.model）掛在同一套機制上","這些任務其實都用主模型，沒有另外的『輔助模型』概念"],
+     correct:1,
+     explain:"這是刻意的統一設計：不是每個功能各自發明一套模型選擇邏輯，而是全部注入同一個 auxiliary 任務槽機制，差別只在任務名稱字串——這也是為什麼第 4 章、第 12 章講的『輔助模型哪裡來』答案完全一樣。"},
+    {q:"Subagent 的系統提示（_build_child_system_prompt）跟父 Agent 的完整系統提示，關係是什麼？",
+     opts:["直接複製父 Agent 的系統提示，只是換個 session id","完全獨立、從零組裝的一份精簡提示——固定包含 YOUR TASK／CONTEXT／WORKSPACE PATH，且會重新讀一次工作目錄的 AGENTS.md／CLAUDE.md，但明確跳過 SOUL.md（身份屬於父 Agent，不屬於子 Agent）","跟父 Agent 共用同一份，只是多插入一行『你是子 Agent』"],
+     correct:1,
+     explain:"這呼應第 7 章『Subagents Know Nothing』的精神：子 Agent 的提示是專門為它的單一任務從零組裝的，不是父提示的變體。特地重新載入 AGENTS.md 是因為子 Agent 建構時 skip_context_files=True；特地跳過 SOUL.md 則是因為身份是父層的東西，不該複製給一個用完即丟的子 Agent。"},
+    {q:"Curator 的 LLM 整併審查，用的是什麼樣的提示詞？",
+     opts:["幾句話的簡短指令，細節全交給模型自由發揮","一份很長、列了具體『硬性規則』的任務說明——例如『絕不刪除，只能歸檔』『pinned 的 skill 完全不能碰』『use_count=0 不是刪除的理由，除非同時滿足 30 天以上且內容確實過時』——把容易出錯的邊界案例都寫死成規則，而不是靠模型自己拿捏","跟壓縮摘要用同一份模板，只是換了輸入內容"],
+     correct:1,
+     explain:"Curator 的審查提示是這幾份模板裡最『規則導向』的一份：因為它的動作有風險（會真的改動你的 skill 庫），所以把大量邊界情況直接寫成不可違反的硬規則，而不是信任模型的常識判斷。"},
+    {q:"Session 命名（title generation）的提示詞用了什麼機制，確保回應一定是可解析的短標題，而不是模型不小心寫成一段話？",
+     opts:["靠提示詞裡多寫幾句『請簡短』就夠了","用 JSON Schema 強制回應格式（{\"title\": \"...\"} 且 additionalProperties:false），外加好幾組『好例子／太模糊／太長』的對照範例","靠壓縮摘要那個輔助模型二次檢查"],
+     correct:1,
+     explain:"結構化輸出（JSON Schema）加上少量對照範例（few-shot），是這份提示詞的核心手法：schema 從格式上排除『模型直接回答問題』這種常見失敗模式，範例則校準『多短算短、多具體算具體』的分寸。"}
   ]
 };
 
@@ -585,15 +611,14 @@ function saveProgress(p){
 }
 var progress = loadProgress();
 var active = 1;
-for (var i=1;i<=16;i++){ if(progress[i]){ active = Math.min(i+1,16); } }
+for (var i=1;i<=17;i++){ if(progress[i]){ active = Math.min(i+1,17); } }
 
 function chapterState(n){
   var chDef = CH[n-1];
   if (chDef.status === "soon") return progress[n] ? "passed" : "soon";
   if (progress[n]) return "passed";
   if (n === active) return "active";
-  if (n === 1 || progress[n-1]) return "unlocked";
-  return "locked";
+  return "unlocked";
 }
 
 function renderNav(){
@@ -601,10 +626,10 @@ function renderNav(){
   ul.innerHTML = "";
   var passedCount = 0;
   CH.forEach(function(c){ if(progress[c.n]) passedCount++; });
-  document.getElementById('progress-text').textContent = passedCount + " / 16";
+  document.getElementById('progress-text').textContent = passedCount + " / 17";
   var meter = document.getElementById('meter');
   meter.innerHTML = "";
-  for (var i=1;i<=16;i++){
+  for (var i=1;i<=17;i++){
     var seg = document.createElement('i');
     if (progress[i]) seg.className = "on";
     meter.appendChild(seg);
@@ -613,12 +638,12 @@ function renderNav(){
   CH.forEach(function(c){
     var state = chapterState(c.n);
     var li = document.createElement('li');
-    li.setAttribute('data-state', state === "active" ? "active" : (state === "passed" ? "passed" : (state === "soon" ? "soon" : (state === "locked" ? "locked" : ""))));
+    li.setAttribute('data-state', state === "active" ? "active" : (state === "passed" ? "passed" : (state === "soon" ? "soon" : "")));
     var btn = document.createElement('button');
     btn.className = "chnode";
     var num = String(c.n).padStart(2,'0');
     btn.innerHTML = '<span class="dot">'+ (state==="passed" ? "" : num) +'</span><span class="label"><span class="t">'+c.title+'</span><span class="k">'+ (state==="soon" ? "準備中" : c.key) +'</span></span>';
-    if (state === "locked"){
+    if (state === "soon"){
       btn.setAttribute('aria-disabled','true');
     } else {
       btn.addEventListener('click', function(n){ return function(){ goTo(n); }; }(c.n));
@@ -634,7 +659,7 @@ function renderQuiz(n){
   var qs = QUIZ[n];
   if (!qs) return "";
   var html = '<div class="quiz" data-chapter="'+n+'">';
-  html += '<div class="quiz-head"><h3>小測驗</h3><span class="hint">全部答對才能解鎖下一章</span></div>';
+  html += '<div class="quiz-head"><h3>小測驗</h3><span class="hint">非必答，檢查一下自己是不是真的懂了</span></div>';
   qs.forEach(function(q, qi){
     html += '<div class="quiz-q" data-qi="'+qi+'" data-correct="'+q.correct+'">';
     html += '<p class="q-text">Q'+(qi+1)+'. '+esc(q.q)+'</p>';
@@ -685,11 +710,9 @@ function bindQuiz(root, n){
       progress[n] = true;
       saveProgress(progress);
       msg.className = "quiz-msg ok celebrate";
-      msg.textContent = "全部答對！本章已通過 — 下一章解鎖了。";
+      msg.textContent = "全部答對！這章你已經確實理解了。";
       checkBtn.hidden = true;
       renderNav();
-      var nextBtn = root.querySelector('[data-nav="next"]');
-      if (nextBtn && n < 16) nextBtn.disabled = false;
     } else {
       msg.className = "quiz-msg bad";
       msg.textContent = "有答錯的題目，看看上面的說明，再試一次。";
@@ -721,8 +744,8 @@ function render(){
   var quizHtml = c.status === "soon" ? "" : renderQuiz(c.n);
 
   var prevDisabled = c.n <= 1 ? 'disabled' : '';
-  var nextState = chapterState(c.n+1 <= 16 ? c.n+1 : 16);
-  var nextDisabled = (c.n >= 16 || (nextState === 'locked')) ? 'disabled' : '';
+  var nextState = chapterState(c.n+1 <= 17 ? c.n+1 : 17);
+  var nextDisabled = (c.n >= 17 || (nextState === 'soon')) ? 'disabled' : '';
 
   root.innerHTML =
     '<div class="ch-head"><div class="eyebrow"><span class="num">CH.'+num+'</span> HARNESS 拆裝手冊</div>' +
@@ -738,14 +761,14 @@ function render(){
     el.addEventListener('click', function(){ goTo(parseInt(el.getAttribute('data-goto'), 10)); });
   });
   root.querySelector('[data-nav="prev"]').addEventListener('click', function(){ if(active>1){ active--; render(); window.scrollTo(0,0);} });
-  root.querySelector('[data-nav="next"]').addEventListener('click', function(){ if(active<16 && chapterState(active+1)!=='locked'){ active++; render(); window.scrollTo(0,0);} });
+  root.querySelector('[data-nav="next"]').addEventListener('click', function(){ if(active<17 && chapterState(active+1)!=='soon'){ active++; render(); window.scrollTo(0,0);} });
 
   document.getElementById('foot-cur').textContent = num;
 }
 
 function goTo(n){
   var state = chapterState(n);
-  if (state === 'locked') return;
+  if (state === 'soon') return;
   active = n;
   render();
   window.scrollTo(0,0);
@@ -785,7 +808,7 @@ BODY[1] =
 '</div>' +
 '<div class="section">' +
   '<h3>Harness 不是一個框架，是一種責任分工</h3>' +
-  '<p>市面上的「Agent SDK」「Agent Harness」名字五花八門，但骨架都一樣：<strong>模型負責決定要做什麼，Harness 負責讓它真的能做到，並且守住邊界</strong>（不該做的事不能做、失敗要能重試、成本要能控制）。接下來的章節，我們會一塊一塊把這個骨架組起來（第 2–4 章），對照 hermes-agent 這個真實系統看核心迴圈怎麼落地（第 5–10 章），最後把它完整的功能版圖也攤開來看（第 11–16 章）。</p>' +
+  '<p>市面上的「Agent SDK」「Agent Harness」名字五花八門，但骨架都一樣：<strong>模型負責決定要做什麼，Harness 負責讓它真的能做到，並且守住邊界</strong>（不該做的事不能做、失敗要能重試、成本要能控制）。接下來的章節，我們會一塊一塊把這個骨架組起來（第 2–4 章），對照 hermes-agent 這個真實系統看核心迴圈怎麼落地（第 5–10 章），把它完整的功能版圖也攤開來看（第 11–16 章），最後用第 17 章把散落在各章的提示詞模板集中攤開一次看完。</p>' +
 '</div>';
 
 BODY[2] =
@@ -941,6 +964,7 @@ BODY[4] =
   '<p>怎麼決定要砍什麼：不靠模型評估，純規則比對。刪除候選是「超過 200 字元、且不在近期保留窗口內」的舊工具結果。近期保留窗口有多大，主要由 token 預算決定，不是單純數訊息筆數：<span class="mono">tail_token_budget = clamp(context 視窗 × 2.5%, 10000, 25000)</span>（單位 token，預設的「lean 模式」公式）；訊息筆數只當一個下限，<span class="mono">min(protect_last_n, 8)</span>，代入預設值＝<span class="mono">min(20, 8) = 8</span> 則（<span class="mono">agent/context_compressor.py</span> 的 <span class="mono">_MAX_TAIL_MESSAGE_FLOOR = 8</span>）。窗口以外，另外還有一段<strong>開頭固定區段</strong>（<span class="mono">protect_first_n</span>，預設 <strong>3</strong> 則）永遠不會被動到。窗口內的工具呼叫跟它的結果一定成對保留，絕不會攔腰切斷，呼應前面「常見地雷」講的配對限制。開頭固定區段與近期保留窗口以外剩下的舊內容，才是下一步真正會被摘要掉的範圍。</p>' +
   '<h4>第二步：摘要——把剩下的舊歷史濃縮成結構化筆記</h4>' +
   '<p>被畫出來的那段舊歷史，會送給一個輔助模型（屬於 hermes-agent 的 auxiliary task 體系）摘要——不是讓模型自由發揮，而是照一份固定模板逐段填寫：</p>' +
+  '<div class="callout"><span class="k">這個「輔助模型」到底是哪一個？</span><p>解析順序有三層，由 <span class="mono">agent/auxiliary_client.py</span> 統一處理：①先看有沒有針對這個任務的明確設定——壓縮摘要對應 <span class="mono">auxiliary.compression.model</span>；②沒有的話，退回目前這個 provider 在 <span class="mono">plugins/model-providers/&lt;name&gt;/</span> 裡登記的 <span class="mono">default_aux_model</span>——每家 provider 都會宣告一個「便宜快速」的預設輔助模型，例如 Anthropic 登記的是 <span class="mono">claude-haiku-4-5</span>；③兩者都沒有，就直接退回你目前對話用的主模型。這條解析鏈不是壓縮專用的，是 hermes-agent 全部「輔助任務」共用的同一套機制——第 12 章 Curator 用的模型也是走這一條，只是換一個任務名稱（<span class="mono">auxiliary.curator.model</span>）。</p></div>' +
   '<div class="table-wrap"><table><tr><th>模板段落</th><th>要求</th></tr>' +
     '<tr><td>Historical Task Snapshot（開頭標頭）</td><td>標示這是「歷史任務快照」，不是即時對話</td></tr>' +
     '<tr><td>Goal</td><td>這段歷史裡使用者真正想完成的任務</td></tr>' +
@@ -984,6 +1008,10 @@ BODY[4] =
   '<h4>門檻不是寫死的單一數字</h4>' +
   '<p>觸發門檻可以按模型分別覆寫（<span class="mono">compression.model_thresholds</span>，用子字串比對模型名稱，比對到多個候選時最長的字串優先）；另外還有一個「小 context 保底」：如果模型的 context window 本身小於 512K，門檻會自動拉高到 75%，避免小視窗的模型因為 50% 門檻太保守而壓縮得太頻繁、太早開始摘要。壓縮後 session 怎麼保留身份（原地改寫同一個 session id）第 6 章已經講過，這裡不重複。</p>' +
   '<div class="callout warn"><span class="k">容易搞混的地方</span><p>repo 最上層有一個 <span class="mono">trajectory_compressor.py</span>，名字很像，但完全是另一件事——它是把 session 資料轉換成 ShareGPT 格式的訓練用軌跡，給 <span class="mono">batch_runner.py</span> 合成訓練資料用的，跟這裡講的「對話進行中即時發生」的壓縮（<span class="mono">agent/context_compressor.py</span>）完全無關。這是繼第 8 章 <span class="mono">toolsets.py</span>／<span class="mono">toolset_distributions.py</span> 之後，repo 裡第二個因為命名相近而容易搞混的地方。</p></div>' +
+  '<div class="callout"><span class="k">題外話：為什麼一個 agent harness 的 repo 裡會有訓練資料生成機制</span>' +
+    '<p>hermes-agent 除了是一個能跑的產品，也是這個 repo 拿來<strong>生產訓練資料</strong>的工具本身：<span class="mono">batch_runner.py</span> 可以把同一套 harness，對著一整批 prompt（例如某個 benchmark 資料集）平行跑很多輪，每一輪都是一次完整、真實的「模型使用工具解任務」過程，跑完直接存成 ShareGPT 格式的 JSONL（訊息角色對應：<span class="mono">system</span>／<span class="mono">human</span>／<span class="mono">gpt</span>／<span class="mono">tool</span>）——這種格式可以直接餵給訓練或 RL 流程用。<span class="mono">toolset_distributions.py</span>（第 8 章提過的機率抽樣器）負責讓每一輪隨機拿到不同的工具組合，這樣產出的資料集才涵蓋多種工具使用情境，不會每筆都長得一樣。<span class="mono">trajectory_compressor.py</span> 則是最後一道工序：把跑出來原始又冗長的對話記錄，壓進一個訓練用的 token 預算內（保護開頭與結尾的關鍵輪次，只壓縮中段），同時盡量不破壞「訓練訊號」的品質。</p>' +
+    '<p>要注意的是：這一整套只有透過 <span class="mono">batch_runner.py</span> 或明確加上 <span class="mono">--save_trajectories</span> 參數執行 <span class="mono">run_agent.py</span> 才會啟動；預設值是關閉的（<span class="mono">save_trajectories: bool = False</span>），一般使用者平常用 <span class="mono">hermes</span> 這個 CLI 聊天，並不會被默默存成訓練資料。</p>' +
+  '</div>' +
   '<h4>跟 Prompt Caching 的互動</h4>' +
   '<p>壓縮發生的那一刻，前綴內容就變了，所以當下那次請求的快取一定會失效——這是壓縮本身的代價，跟前面「三者不是互斥」的原則並不矛盾。hermes-agent 對 Anthropic 模型的快取邊界策略是「system prompt ＋最近 3 則訊息的滾動視窗」，最多 4 個快取斷點，可選 5 分鐘或 1 小時兩種存留時間。壓縮完成後，新的（變短的）歷史從下一輪開始，又會是一段全新、可以重新命中快取的穩定前綴。</p>' +
 '</div>' +
@@ -1031,6 +1059,9 @@ BODY[6] =
   '<p><strong>比每一輪對話結束更頻繁地寫入</strong>：實際上是在一次 turn 裡的多個檢查點（例如每次工具呼叫後）就觸發 flush，把該批還沒寫入的訊息透過 <span class="mono">SessionDB.append_messages_batch()</span> 一次性寫進一個 <span class="mono">BEGIN IMMEDIATE</span> 交易（<span class="mono">BEGIN IMMEDIATE</span> 是「交易一開始就先搶寫鎖」，跟 SQLite 預設「等到真正寫入那一刻才搶鎖」不同——好處是搶不到鎖會立刻知道，而不是做到一半才發現卡住）（官方註解形容為「一個 turn 通常 3–8 則訊息，一次交易」），而不是逐則呼叫單筆的 <span class="mono">append_message()</span>，也不是等到 session 結束才存檔——這代表就算程式在對話中途當掉，前面已 flush 的內容也不會遺失。</p>' +
   '<h4>多個程式搶同一個檔案怎麼辦</h4>' +
   '<p>同一個 <span class="mono">state.db</span> 可能同時被好幾個程式寫入：gateway、CLI，以及 <strong>worktree agent</strong>（用 <span class="mono">hermes --worktree</span> 啟動的 session——它會用 <span class="mono">git worktree add</span> 另外切出一份獨立的工作目錄＋分支，讓這個 agent 在不影響你當前分支的地方單獨改程式碼，但仍然共用同一個 <span class="mono">~/.hermes/state.db</span>）。多個程式搶同一份資料庫檔案的寫入權，做法拆開來看是四件事疊在一起：①連線先設一個<strong>短逾時</strong>（1 秒）——搶不到鎖就快速失敗，不要傻等；②搶鎖失敗就在應用層自己重試，重試間隔加一點<strong>隨機亂數（jitter）</strong>，是為了避免好幾個程式同時醒來又同時再撞在一起（這叫 convoy／驚群問題）——爭用愈久，這個隨機間隔也拉得愈長（從 20–150ms 逐步拉高到 250ms–1s）；③重試不是「試 N 次就放棄」，而是「試到某個時間預算用完就放棄」（一般寫入約 20 秒，逐字稿等關鍵寫入放寬到 60 秒）；④每次交易明確用上面提到的 <span class="mono">BEGIN IMMEDIATE</span> 搶寫鎖，並且每 50 次寫入就做一次 WAL 的 checkpoint（把日誌檔的內容合併回主資料庫檔案，避免日誌檔無限長大）。</p>' +
+  '<h4>session_search 是不是 RAG？</h4>' +
+  '<p>不是——至少不是一般講的「向量嵌入式」RAG。典型 RAG 的做法是：把文字轉成向量（embedding），存進向量資料庫，查詢時也轉成向量，靠向量之間的距離找出「語意相近」的段落，這個過程通常會自動夾在每次生成之前發生。<span class="mono">session_search</span> 完全不是這樣：它是純<strong>關鍵字全文檢索</strong>——查詢字串直接丟給上面的 FTS5 索引做比對，用 SQLite 內建的 <strong>BM25</strong> 演算法排序（一種看關鍵字出現頻率的統計排名，不理解字面以外的意思，比對的是文字，不是語意），還支援布林查詢語法：預設多個詞是 AND 關係，也能寫 <span class="mono">alpha OR beta</span>、用引號做片語精確比對、用 <span class="mono">deploy*</span> 做前綴比對。整個過程<strong>零 embedding、零向量資料庫、零 LLM 呼叫</strong>，而且不是自動觸發的管線——是模型自己判斷「這輪好像需要查一下之前講過什麼」，主動呼叫 <span class="mono">session_search</span> 這個工具才會發生，跟前面自動出現在 prompt 裡的 MEMORY.md／USER.md 完全是不同的觸發方式。</p>' +
+  '<p>真正做「向量／語意檢索」的，是第 13 章談的<strong>部分</strong>外部 memory provider——像 Holographic、Mem0、OpenViking、Hindsight、Honcho 都各自有自己的 embedding 或向量比對機制，RetainDB 甚至是「Vector＋BM25＋Rerank」混合搜尋。但那是另一層完全獨立、選用、同時間最多啟用一個的系統，不是 <span class="mono">session_search</span> 在做的事。</p>' +
   '<h4>壓縮後 session 去哪了</h4>' +
   '<p>目前預設 <span class="mono">compression.in_place: true</span>：壓縮（見第 4 章）發生時<strong>原地改寫同一個 session id</strong>，舊的輪次標記 <span class="mono">active=0, compacted=1</span> 軟性封存、但仍然可以被搜尋到，而不是換一個新 session id（這是為了修掉一整類「切換 session 後某些狀態跟丟」的 bug）。</p>' +
 '</div>';
@@ -1057,18 +1088,32 @@ BODY[7] =
   '<p>官方文件直接寫著 <strong>「Subagents Know Nothing」</strong>——子 Agent 拿不到父層的任何對話歷史，只有 <span class="mono">goal</span> 和 <span class="mono">context</span> 兩個字串（唯一例外是工作目錄底下的專案規則檔，如 AGENTS.md，會被嵌進子 Agent 的系統提示）。結果回傳也對稱地嚴格：只有子 Agent<strong>最終的結構化摘要</strong>會回到父層 context，完整過程留在子 Agent 自己的 session 裡。</p>' +
   '<p>頂層的 <span class="mono">delegate_task</span> 預設<strong>在背景執行</strong>：父 Agent 立刻拿到一個任務代號（handle）就能繼續做別的事，結果之後以「一輪新的合成訊息」形式送回（靠 state.db 保證不會遺失）；每個任務的即時逐字稿也會寫進 <span class="mono">&lt;hermes_home&gt;/cache/delegation/live/&lt;delegation_id&gt;/task-&lt;n&gt;.log</span>，方便旁觀進度。</p>' +
   '<p>子 Agent 被<strong>禁止</strong>再呼叫 <span class="mono">delegate_task</span>（避免無限增殖）、以及 <span class="mono">clarify</span>、<span class="mono">memory</span>、<span class="mono">send_message</span>、<span class="mono">cronjob</span>。深度預設是扁平的（<span class="mono">max_spawn_depth: 1</span>），要顯式設成 <span class="mono">orchestrator</span> 角色並調高深度，才能開出多層委派樹。父層也能對還在跑的子 Agent 下達 <span class="mono">stop</span>／<span class="mono">steer</span>／<span class="mono">list</span> 等控制指令——注意模型面向的動作叫 <span class="mono">stop</span>，不是 <span class="mono">interrupt</span>；<span class="mono">interrupt_subagent()</span> 只是內部實作用的函式名稱，讀原始碼時容易把兩者搞混。</p>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>只會吐文字的模型，到底怎麼「生出」一個 agent？</h3>' +
+  '<p>答案是：模型從頭到尾都沒有「生出」任何東西，這件事完全不是模型做的。模型輸出的仍然只是一段文字／JSON，形狀跟呼叫 <span class="mono">read_file</span> 一模一樣：</p>' +
+  '<div class="table-wrap"><table><tr><th>步驟</th><th>實際發生什麼</th></tr>' +
+    '<tr><td>① 模型只吐一段 JSON</td><td><span class="mono">{"name": "delegate_task", "arguments": {"goal": "...", "context": "..."}}</span>——跟呼叫任何其他工具的格式完全相同，模型不知道、也不需要知道背後會發生什麼</td></tr>' +
+    '<tr><td>② harness 查表找 handler</td><td><span class="mono">tools/registry.py</span> 裡 <span class="mono">delegate_task</span> 對應的 handler 被呼叫時，除了模型給的 <span class="mono">goal</span>／<span class="mono">context</span>，還會被硬塞進一個模型從來沒看過、也不可能自己生出來的東西：<span class="mono">parent_agent</span>——也就是<strong>目前這個正在跑的 AIAgent Python 物件本身的參照</strong>。這是 harness 內部一路傳下來的管線，跟模型的文字輸出無關</td></tr>' +
+    '<tr><td>③ 用同一個類別，蓋一個新的</td><td><span class="mono">tools/delegate_tool.py</span> 的 <span class="mono">_build_child_agent()</span> 開頭就是 <span class="mono">from run_agent import AIAgent</span>——子 Agent<strong>不是</strong>什麼特殊機制，就是拿第 2、3 章講的那個一模一樣的 <span class="mono">AIAgent</span> 類別，重新建構一個新的 Python 物件，只是餵給它不同的系統提示（<span class="mono">_build_child_system_prompt</span>）、限縮過的工具清單、以及 <span class="mono">skip_memory=True</span> 這些隔離設定</td></tr>' +
+    '<tr><td>④ 真正讓它「動起來」</td><td>harness 呼叫 <span class="mono">child.run_conversation(user_message=goal, ...)</span>——這是跟第 2、3 章一模一樣的進入點，只是這次的「使用者訊息」是 <span class="mono">goal</span> 這個字串，不是真人打的話。從這裡開始，子 Agent 進的是完全獨立的一輪 Model→Tools→Loop 循環，複製的是同一套機制，不是另一套</td></tr>' +
+    '<tr><td>⑤ 跑在哪裡</td><td>整通呼叫被丟進一個 thread pool（<span class="mono">_timeout_executor.submit(...)</span>）——子 Agent 是在<strong>同一個作業系統行程裡的另一條執行緒</strong>上運行，不是另開一個 process，更不是作業系統層級「執行另一支程式」</td></tr>' +
+    '<tr><td>⑥ 結果怎麼回去</td><td><span class="mono">run_conversation()</span> 跑完（或被 <span class="mono">stop</span>／逾時中斷）後的回傳值，被包裝成一段結構化摘要文字——這段文字就是這次 <span class="mono">delegate_task</span> 呼叫的 <span class="mono">tool_result</span>，跟 <span class="mono">read_file</span> 回傳檔案內容形式上完全一樣。模型看到的只是又收到一則「工具說完成了，這是結果」的訊息，沒有任何特殊之處</td></tr>' +
+  '</table></div>' +
+  '<p>換句話說，「委派」根本不是一個獨立於工具呼叫協定之外的新機制——它就是第 3 章那套「模型請求、Harness 執行」的協定，套用在一個特殊的工具上：這個工具的 handler 剛好選擇「執行」的方式是<strong>遞迴地建構並跑一個新的 AIAgent</strong>，而不是讀一個檔案或跑一行 shell 指令。模型端完全感覺不出差異，因為協定本來就沒有變。</p>' +
+  '<div class="callout warn"><span class="k">一個容易漏掉的細節：background 到底是誰決定的</span><p><span class="mono">delegate_task</span> 的工具 schema 雖然列了一個 <span class="mono">background</span> 參數，但頂層呼叫時<strong>這個值其實不是模型決定的</strong>：<span class="mono">tools/delegate_tool.py</span> 的 <span class="mono">_model_background_value()</span> 會直接判斷「這個呼叫是不是從深度 0（頂層）發出的」——是的話一律強制 <span class="mono">background=True</span>（背景執行，父層立刻拿回一個任務代號繼續做別的事），模型給的值會被蓋掉；只有從深度 &gt; 0 的 orchestrator 子 Agent 再往下委派時，才會強制走同步（<span class="mono">background=False</span>），因為 orchestrator 需要在自己這一輪內就拿到 worker 的結果。</p></div>' +
 '</div>';
 
 BODY[8] =
 '<div class="section">' +
   '<h3>從零設計：工具要怎麼「被知道」存在</h3>' +
-  '<p>工具愈多，手動維護一份「目前有哪些工具」的清單就愈痛苦——新增一個工具、忘記登記，它就永遠不會出現在模型面前。比較耐用的做法是<strong>自我註冊（self-registration）</strong>：工具檔案自己宣告「我是誰、我需要什麼參數、什麼情況下我可用」，由一個中央註冊表在啟動時自動收集。</p>' +
+  '<p>系統要能把新工具「送到模型面前」，一定得有人寫下工具的名字、參數長什麼樣、實際執行的函式是哪個——這件事永遠免不了，重點是<strong>寫在哪裡</strong>。一種做法是開一份跟工具程式碼分開的「總表」，每次新增工具都要記得回頭去總表加一行；問題是總表跟工具是兩份分開的東西，工具寫好了、總表卻忘了加，就會出現一個能跑但模型永遠呼叫不到的工具，而且不會報錯——只是安靜地不存在。比較耐用的做法是<strong>自我註冊（self-registration）</strong>：那一行「登記」的程式碼不寫在別處的總表裡，而是寫進工具自己的檔案裡，跟工具定義綁在一起，讓「定義工具」跟「讓系統發現它」變成同一個動作，沒有第二步可以忘記做。</p>' +
 '</div>' +
 '<div class="callout"><span class="k">hermes-agent 實際上怎麼做</span>' +
-  '<p><span class="mono">tools/</span> 底下每個檔案，只要在模組頂層呼叫一次 <span class="mono">registry.register(name=..., toolset=..., schema=..., handler=..., check_fn=...)</span>，就完成了註冊。<span class="mono">tools/registry.py</span> 的 <span class="mono">discover_builtin_tools()</span> 會在啟動時<strong>用 AST 掃描</strong>整個 tools 目錄，只匯入有頂層 <span class="mono">register()</span> 呼叫的檔案——不需要維護任何手動清單。</p>' +
+  '<p><span class="mono">tools/</span> 底下每個檔案，只要在模組頂層呼叫一次 <span class="mono">registry.register(name=..., toolset=..., schema=..., handler=..., check_fn=...)</span>，就完成了註冊——這一行你還是得手寫，跟其他方案沒有兩樣。差別在於系統裡<strong>沒有任何一份「所有工具清單」的檔案</strong>：啟動時 <span class="mono">tools/registry.py</span> 的 <span class="mono">discover_builtin_tools()</span> 會掃過 <span class="mono">tools/</span> 目錄下每一個檔案，用 <strong>AST 掃描</strong>（把程式碼解析成語法樹來檢查，但不執行它）判斷「這個檔案的最頂層有沒有呼叫 <span class="mono">register()</span>」，有就 import 它（import 才會真正執行 <span class="mono">register()</span>），沒有就跳過。新增一個工具，你只需要碰你自己剛寫的那個檔案，不用再去別的地方登記一次。</p>' +
   '<p>每個工具可以附一個 <span class="mono">check_fn</span>（例如「有沒有設定 API key」），在組裝模型看得到的工具清單時被評估；拋出例外一律視為「不可用」（fail-safe），不可用的工具會被悄悄從清單裡拿掉，模型不會看到它。</p>' +
   '<p><span class="mono">toolsets.py</span> 定義具名的工具組合（像 <span class="mono">"web"</span>、<span class="mono">"vision"</span>、<span class="mono">"delegation"</span>）以及平台預設組合（<span class="mono">"hermes-cli"</span>、<span class="mono">"hermes-telegram"</span>），由 <span class="mono">model_tools.get_tool_definitions()</span> 統一組裝出最終送給模型的工具清單。</p>' +
-  '<div class="callout warn"><span class="k">容易搞混的地方</span><p>名字很像的 <span class="mono">toolset_distributions.py</span>，其實跟「這次對話模型看得到哪些工具」完全無關——它只是 <span class="mono">batch_runner.py</span> 合成訓練資料時用的機率抽樣器。讀原始碼時很容易誤把兩者當成同一套機制。</p></div>' +
+  '<div class="callout warn"><span class="k">容易搞混的地方</span><p>名字很像的 <span class="mono">toolset_distributions.py</span>，其實跟「這次對話模型看得到哪些工具」完全無關——它只是 <span class="mono">batch_runner.py</span> 合成訓練資料時用的機率抽樣器，讓每一輪合成對話隨機拿到不同的工具組合。讀原始碼時很容易誤把兩者當成同一套機制。這整套「用 harness 本身生成訓練資料」的機制，第 4 章有更完整的說明。</p></div>' +
   '<h4>Provider 抽象層：換供應商不用重寫 loop</h4>' +
   '<p>你可能會期待有一個 <span class="mono">providers/</span> 資料夾、每個供應商一個檔案——但實際上邏輯更分散：<span class="mono">hermes_cli/runtime_provider.py</span> 把「使用者選的 (provider, model)」解析成「(api_mode, API key, base_url)」，再由 <span class="mono">agent/anthropic_adapter.py</span>、<span class="mono">agent/bedrock_adapter.py</span> 等各自把不同廠商的請求／回應格式，轉換成同一種內部的 OpenAI 風格訊息字典。除了 <span class="mono">chat_completions</span>／<span class="mono">codex_responses</span>／<span class="mono">anthropic_messages</span> 之外，還有 <span class="mono">bedrock_converse</span>（以及較次要的 <span class="mono">copilot_acp</span>）等至少四、五種 API 模式，各自對應一個 <span class="mono">agent/transports/*.py</span> 傳輸層，最後都收斂到這個共同格式，轉換完成後直接接回第 2、3 章那個迴圈的下一輪——迴圈本身完全感覺不到中間多繞了一層 adapter。不過只有「供應商設定檔」（廠商別名、env vars、base_url、api_mode 字串、預設 aux model 等中繼資料）是用「provider plugin」機制實作的，每家供應商一個 <span class="mono">plugins/model-providers/&lt;name&gt;/</span> 目錄；實際做請求／回應格式轉換的 adapter（如 <span class="mono">agent/anthropic_adapter.py</span>、<span class="mono">agent/bedrock_adapter.py</span>）則是寫死在 <span class="mono">agent/</span>、<span class="mono">agent/transports/</span> 底下、按 api_mode（不是按廠商）共用的固定模組，不在 plugin 目錄裡、也不透過 plugin 機制被發現——第 15 章談外掛系統時會回來對照這條界線。</p>' +
 '</div>';
@@ -1186,6 +1231,7 @@ BODY[11] =
 '<div class="section">' +
   '<h3>Tool Search：工具太多時的漸進式揭露</h3>' +
   '<p>接上多個 MCP 伺服器後，工具的 JSON schema 有可能佔掉大量 context——即使一輪對話裡真正用得到的只有一兩個。Tool Search 是解法：把 MCP／外掛工具從「每輪都完整列出」改成「用三個橋接工具隨選載入」。<strong>hermes-agent 核心工具永遠不會被延後載入</strong>，只有 MCP 和非核心外掛工具才符合延後資格。</p>' +
+  '<p><strong>誰定義「核心」、誰算「可延後」</strong>：不是執行期算出來的，是原始碼裡一份寫死的清單——<span class="mono">toolsets.py</span> 的 <span class="mono">_HERMES_CORE_TOOLS</span>，逐一列出像 <span class="mono">terminal</span>、<span class="mono">read_file</span>、<span class="mono">write_file</span>、<span class="mono">memory</span>、<span class="mono">session_search</span>、<span class="mono">delegate_task</span>、<span class="mono">cronjob</span> 這些 hermes-agent 自己內建的工具，永遠不延後（外加 <span class="mono">desktop_ui</span>／<span class="mono">project</span> 這類只在桌面 GUI session 才會開的工具，也單獨排除在延後名單外）。凡是不在這份清單上的——典型情況就是連上某個 MCP 伺服器後它註冊進來的工具，例如「建立 GitHub issue」「發 Slack 訊息」這種——就有資格被延後。</p>' +
   '<div class="diagram"><svg viewBox="0 0 620 190" width="100%" height="190" role="img" aria-label="Tool Search 三段流程">' +
     '<rect class="dg-box" x="10" y="70" width="150" height="50" rx="8"/><text class="dg-text" x="85" y="100" text-anchor="middle" font-size="12">① tool_search</text>' +
     '<rect class="dg-box" x="235" y="70" width="150" height="50" rx="8"/><text class="dg-text" x="310" y="100" text-anchor="middle" font-size="12">② tool_describe</text>' +
@@ -1197,12 +1243,14 @@ BODY[11] =
     '<text class="dg-mono" x="535" y="140" text-anchor="middle" font-size="10">真正呼叫，等同直接呼叫</text>' +
     '<defs><marker id="arr11" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path class="dg-arrow" d="M0,0 L6,3 L0,6 z"/></marker></defs>' +
   '</svg><div class="cap">看到名字就能跳過①直接②——只有完全不知道有哪些工具時才需要搜尋。</div></div>' +
+  '<p>三個橋接工具的參數長這樣：<span class="mono">tool_search(queries: string[])</span>——例如 <span class="mono">queries: ["create github issue", "send slack message"]</span>，每個字串是幾個關鍵字描述一個能力，會平行搜尋、依查詢分組回傳命中的工具名稱；<span class="mono">tool_describe(names: string[])</span>——把 <span class="mono">tool_search</span> 回傳的確切名稱丟進去，換回完整 JSON schema；<span class="mono">tool_call(name: string, arguments: object)</span>——照 schema 填好參數真正呼叫，會走過跟直接列出的工具完全一樣的權限檢查、hook、核准流程。</p>' +
   '<h4>三層退化（tiered disclosure）</h4>' +
-  '<div class="table-wrap"><table><tr><th>層級</th><th>觸發條件</th><th>模型看到什麼</th></tr>' +
-    '<tr><td>Tier 0</td><td>沒有可延後的 MCP／外掛工具</td><td>全部照舊，直接列出，無橋接</td></tr>' +
-    '<tr><td>Tier 1</td><td>延後工具的清單塞得進預算</td><td>橋接工具 ＋ 每個延後工具的名稱＋簡短描述（類似 skills 的清單模式）</td></tr>' +
-    '<tr><td>Tier 2</td><td>連「只列名稱」都塞不下（例如某個 MCP 伺服器本身就有數千個工具）</td><td>只剩橋接工具 ＋ 每個伺服器一行的摘要，個別工具只能靠搜尋發現</td></tr>' +
+  '<div class="table-wrap"><table><tr><th>層級</th><th>觸發條件</th><th>模型看到什麼</th><th>具體例子</th></tr>' +
+    '<tr><td>Tier 0</td><td>沒有可延後的 MCP／外掛工具</td><td>全部照舊，直接列出，無橋接</td><td>沒接任何 MCP 伺服器、也沒裝非核心外掛——就只有內建工具，三個橋接工具根本不會出現</td></tr>' +
+    '<tr><td>Tier 1</td><td>延後工具的清單塞得進預算</td><td>橋接工具 ＋ 每個延後工具的名稱＋簡短描述（類似 skills 的清單模式）</td><td>接一個中型 MCP 伺服器，例如提供二三十個工具的 GitHub MCP——這些工具的「名稱＋一行描述」全部列出來還在預算內，模型看到的是 3 個橋接工具，外加一份「<span class="mono">create_issue</span> — 建立一個新 issue」這種清單</td></tr>' +
+    '<tr><td>Tier 2</td><td>連「只列名稱」都塞不下</td><td>只剩橋接工具 ＋ 每個伺服器一行的摘要，個別工具只能靠搜尋發現</td><td>原始碼註解裡舉的真實案例：Cloudflare 的 MCP 伺服器攤平後有<strong>約 3,300 個工具</strong>，光是把名字全部列出來就要吃掉約 32K token，遠超預算——這時模型只看得到「cloudflare-mcp——3,300 個工具可用」這種一行摘要，要找特定工具必須靠 <span class="mono">tool_search</span> 關鍵字查</td></tr>' +
   '</table></div>' +
+  '<p>預算怎麼算：<span class="mono">budget = min( listing_max_tokens, context 視窗 × threshold_pct )</span>，預設 <span class="mono">threshold_pct = 5%</span>、<span class="mono">listing_max_tokens = 4000</span> token（兩者都可調整）——延後工具清單的「名稱＋描述」版本先試算，塞得進這個預算就是 Tier 1；退化成「只列名稱」還是塞不下，才會掉到 Tier 2。</p>' +
   '<p>Tier 1 的「清單」很關鍵：如果完全不給任何線索，模型容易忘記某個能力存在，改用它已知的其他工具硬做，或乾脆宣稱做不到。保留一份輕量清單，讓每個能力至少「知道存在」，只是細節參數延後載入。</p>' +
 '</div>';
 
@@ -1212,11 +1260,13 @@ BODY[12] =
 '</div>' +
 '<div class="section">' +
   '<h3>漸進式揭露：三個層級</h3>' +
-  '<div class="table-wrap"><table><tr><th>層級</th><th>回傳內容</th><th>成本</th></tr>' +
-    '<tr><td>Level 0 — <span class="mono">skills_list()</span></td><td>每個 skill 的名稱＋描述＋分類</td><td>約 3k token，一直存在</td></tr>' +
-    '<tr><td>Level 1 — <span class="mono">skill_view(name)</span></td><td>完整內容＋metadata</td><td>視 skill 大小，真正要用才載入</td></tr>' +
-    '<tr><td>Level 2 — <span class="mono">skill_view(name, path)</span></td><td>某個特定的參考檔案（<span class="mono">references/</span> 底下）</td><td>只在需要那份細節時才載入</td></tr>' +
+  '<div class="table-wrap"><table><tr><th>層級</th><th>怎麼取得</th><th>回傳內容</th><th>成本</th></tr>' +
+    '<tr><td>Level 0</td><td>不用呼叫工具——這份索引直接烤進 system prompt，每輪自動出現在模型眼前</td><td>每個 skill 的名稱＋描述＋分類</td><td>約 3k token，一直存在</td></tr>' +
+    '<tr><td>Level 1</td><td>主動呼叫 <span class="mono">skill_view(name)</span></td><td>完整 <span class="mono">SKILL.md</span> 內容＋metadata＋一份 <span class="mono">linked_files</span> 清單（列出這個 skill 底下有哪些 references／templates／scripts）</td><td>視 skill 大小，真正要用才載入</td></tr>' +
+    '<tr><td>Level 2</td><td>再呼叫一次 <span class="mono">skill_view(name, file_path=...)</span>，路徑抄自上一步回傳的 <span class="mono">linked_files</span></td><td>某一份特定的參考檔案（<span class="mono">references/</span>／<span class="mono">templates/</span>／<span class="mono">scripts/</span> 底下）</td><td>只在需要那份細節時才載入</td></tr>' +
   '</table></div>' +
+  '<p>具體例子——假設有個 <span class="mono">pdf-form-filling</span> skill：Level 0 你（透過模型）看到的就是 system prompt 裡一行「<span class="mono">pdf-form-filling</span> — 讀取並填寫 PDF 表單欄位」；模型判斷這輪用得到，呼叫 <span class="mono">skill_view("pdf-form-filling")</span> 進到 Level 1，拿到完整流程說明，回傳裡的 <span class="mono">linked_files</span> 可能列著 <span class="mono">references/field-types.md</span>、<span class="mono">scripts/fill_form.py</span>；只有真的碰到某種特殊欄位類型看不懂時，才會再呼叫 <span class="mono">skill_view("pdf-form-filling", file_path="references/field-types.md")</span> 進到 Level 2，把那份細節文件單獨載進來。</p>' +
+  '<p>還有一個 <span class="mono">skills_list()</span> 工具，容易被誤會是「第一步一定要呼叫的入口」——其實不是：Level 0 索引本來就自動在 system prompt 裡，不需要主動查。<span class="mono">skills_list()</span> 是備用查詢工具，用在索引可能不夠新、或想按分類篩選的時候，不是「list → view → reference」這個順序裡必經的第一步；真正每次都會發生的，是「（被動看到 Level 0）→ 主動 <span class="mono">skill_view</span> 進 Level 1 →（有需要才）進 Level 2」。</p>' +
   '<p>這讓一個 skill 可以龐大而不昂貴：像 <span class="mono">/learn</span> 把一整本書變成 skill 時，不會硬塞成一個巨大檔案，而是產出一份精簡的 <span class="mono">SKILL.md</span>（核心心智模型＋索引），每個章節各自一份 <span class="mono">references/</span> 檔案，查詢成本只跟「答案需要的那一小塊」成正比，不跟整本書的大小成正比。</p>' +
 '</div>' +
 '<div class="section">' +
@@ -1245,6 +1295,10 @@ BODY[12] =
     '<tr><td>自動轉換（決定性，預設開）</td><td>閒置 30 天 → stale；閒置 90 天 → archived（移到 <span class="mono">.archive/</span>，可還原，從不真正刪除）</td><td>零，不呼叫模型</td></tr>' +
     '<tr><td>LLM 整併（consolidate，預設關）</td><td>審視有重疊的 skill，決定保留／修補／合併成「傘狀」skill／歸檔</td><td>一次完整審查通常要跑 50–100 次 aux-model 呼叫</td></tr>' +
   '</table></div>' +
+  '<h4>什麼時候會跑，什麼時候會觸發 LLM 整併</h4>' +
+  '<p>Curator 不是排程工具（cron），而是掛在 <span class="mono">hermes</span> 的 CLI 啟動和 gateway 啟動路徑上的一個檢查點——每次啟動都會問一次「該不該跑」：條件是①距離上次執行超過 <span class="mono">interval_hours</span>（預設 <strong>168 小時／7 天</strong>），②機器至少閒置 <span class="mono">min_idle_hours</span>（預設 <strong>2 小時</strong>）。兩個條件都滿足，才會 fork 一個 <span class="mono">AIAgent</span> 在背景默默跑一次審查——這也是為什麼它的成本影響幾乎感覺不到：不常跑、挑你沒在用的時候跑。你也可以用 <span class="mono">hermes curator run</span> 手動立即觸發，不用等排程。</p>' +
+  '<p>但即使自動觸發了，預設也<strong>只做左邊那個免費的「自動轉換」</strong>——真正花 token 的 LLM 整併，還需要額外滿足<span class="mono">curator.consolidate: true</span> 這個設定（或手動下 <span class="mono">hermes curator run --consolidate</span>），兩者缺一都不會觸發 LLM 呼叫。也就是說：預設安裝下，LLM 整併這個階段實際上<strong>永遠不會自動發生</strong>，除非你自己選擇打開。</p>' +
+  '<p>整併審查用的模型跟第 4 章壓縮摘要是同一套解析機制——只是換一個任務名稱 <span class="mono">auxiliary.curator.model</span>（沒設就退回目前 provider 的 <span class="mono">default_aux_model</span>，再沒有就退回主模型），細節見第 4 章的說明。</p>' +
   '<p>Curator 只管「agent-created」的 skill——判定條件很窄：不在 bundled 清單、不在 hub 安裝清單、而且 <span class="mono">.usage.json</span> 裡明確標記由背景自我改進審查建立。你當場請 agent 建立的 skill，或手動寫的 <span class="mono">SKILL.md</span>，一律被視為「你的」東西，Curator 不會主動碰，除非你用 <span class="mono">curator adopt</span> 明確交出去。</p>' +
   '<h4>兩種保護：pin 與備份</h4>' +
   '<p><strong>Pin</strong> 保護一個 skill 不被刪除——擋住 Curator 的自動歸檔，也擋住 agent 的 <span class="mono">skill_manage(delete)</span>，但<em>不擋</em> patch／edit，因為你通常還是希望內容能被持續改進。<strong>備份</strong> 則是另一層安全網：每次真正的 Curator 執行前，會先把整個 skills 目錄打包快照；如果某次執行影響到你不想變動的內容，<span class="mono">hermes curator rollback</span> 一鍵整批復原；更精細的單筆操作還有一份逐筆的稽核帳本（ledger），連單一次修改都能單獨回滾。</p>' +
@@ -1421,6 +1475,66 @@ BODY[16] =
     '<li><strong>閒置回收（idle reaping）</strong>——伺服器閒置超過設定時間（預設 600 秒）會自動關閉釋放資源，下次需要時自動重新啟動，避免一個跑很久、碰過很多不同專案的 gateway process 累積出一堆永遠不會被關掉的語言伺服器行程。</li>' +
     '<li><strong>失敗永遠優雅退回</strong>——語言伺服器沒裝、崩潰、逾時，都只會讓那一次的 <span class="mono">lsp_diagnostics</span> 是空的，絕不會讓 <span class="mono">write_file</span>／<span class="mono">patch</span> 本身失敗。</li>' +
   '</ul>' +
+'</div>';
+
+BODY[17] =
+'<div class="section">' +
+  '<h3>不是「一份 prompt」，是很多份</h3>' +
+  '<p>前面十六章各自提過一兩份提示詞模板——第 4 章的壓縮摘要、第 7 章的 subagent 任務提示、第 14 章的 MoA reference/aggregator、第 15 章的主系統提示堆疊。但 hermes-agent 裡實際存在的模板數量比這還多：光是「背景默默跑、模型看不到、但真的會呼叫 LLM」的任務，就還有 Curator 審查、session 命名等好幾份，各自針對不同任務、餵不同的資訊、要求不同格式的輸出。這一章把它們攤開來放在同一張表上比較，而不是分散在各章各自理解。</p>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>全部提示詞模板一覽</h3>' +
+  '<div class="table-wrap"><table><tr><th>模板</th><th>誰在用</th><th>組裝方式</th><th>詳細內容見</th></tr>' +
+    '<tr><td>主系統提示</td><td>每一輪對話，模型面向的主線</td><td>八層堆疊組裝、快取，只在 compaction 時重建</td><td>第 15 章</td></tr>' +
+    '<tr><td>壓縮摘要提示</td><td>對話接近門檻時，背景輔助模型</td><td>固定模板（Goal／Completed Actions／Errors &amp; Fixes...），首次生成 vs 疊代更新走不同提示</td><td>第 4 章</td></tr>' +
+    '<tr><td>Subagent 系統提示</td><td>每個被委派的子 Agent，從零組裝</td><td>YOUR TASK＋CONTEXT＋WORKSPACE PATH，重新載入工作目錄的 AGENTS.md，跳過 SOUL.md</td><td>第 7 章、本章</td></tr>' +
+    '<tr><td>MoA reference／aggregator 提示</td><td>Mixture of Agents 的每一次呼叫</td><td>reference 套固定顧問角色提示；aggregator 看得到全部 reference 的回答再匯總</td><td>第 14 章</td></tr>' +
+    '<tr><td>Curator 審查提示</td><td>背景維護 skill 庫，consolidate 開啟時</td><td>一份很長的規則手冊——目標、禁止事項、工作方法，附即時的候選 skill 清單</td><td>本章</td></tr>' +
+    '<tr><td>Session 命名提示</td><td>每個新 session 的第一則使用者訊息</td><td>固定規則＋幾組好／壞範例，JSON Schema 強制輸出格式</td><td>本章</td></tr>' +
+  '</table></div>' +
+  '<p>共通點：除了主系統提示是「模型面向、每輪都看得到」之外，其餘全部是<strong>背景輔助任務</strong>——模型本身完全不知道這些提示詞的存在，它們是 harness 另外拿一次 LLM 呼叫、餵一份專門設計的提示詞、拿到一個結構化結果後，悄悄把結果用在別的地方（存進摘要、寫進 session 標題、決定要不要合併某個 skill）。</p>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>近看：Subagent 的系統提示長什麼樣</h3>' +
+  '<p>第 7 章講過子 Agent「只拿得到 goal 和 context 兩個字串」，這裡把 <span class="mono">_build_child_system_prompt()</span>（<span class="mono">tools/delegate_tool.py</span>）實際組出來的內容攤開：</p>' +
+  '<div class="table-wrap"><table><tr><th>區塊</th><th>內容</th></tr>' +
+    '<tr><td>開場白</td><td>固定一句「你是一個專注在單一委派任務上的 subagent」</td></tr>' +
+    '<tr><td>YOUR TASK</td><td>父 Agent 傳進來的 <span class="mono">goal</span> 字串，逐字放進去</td></tr>' +
+    '<tr><td>CONTEXT（選用）</td><td>父 Agent 傳進來的 <span class="mono">context</span> 字串，有給才附上</td></tr>' +
+    '<tr><td>WORKSPACE PATH（選用）</td><td>工作目錄路徑，附上使用規範；<strong>並且</strong>重新跑一次跟主 Agent 一樣的 AGENTS.md／CLAUDE.md 探索邏輯，把找到的內容整段附進來——因為子 Agent 建構時 <span class="mono">skip_context_files=True</span>，不這樣做它會完全不知道專案的規範</td></tr>' +
+    '<tr><td>（刻意不含）SOUL.md</td><td>原始碼註解明講：身份屬於父 Agent，子 Agent 不需要，也不該有</td></tr>' +
+  '</table></div>' +
+  '<p>對照第 15 章的主系統提示堆疊：主系統提示是「固定的八層，內容隨對話進行變動」；子 Agent 的系統提示則是「每次委派都從零現組一份，跟父 Agent 當下的系統提示完全獨立」——兩者共用同一個組裝函式家族（<span class="mono">build_context_files_prompt</span> 這類 helper），但產出的是兩份不同壽命、不同用途的文字。</p>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>近看：Curator 的審查提示——規則多到不像「提示」</h3>' +
+  '<p>跟其他模板比，Curator 的審查提示（<span class="mono">CURATOR_REVIEW_PROMPT</span>，<span class="mono">agent/curator.py</span>）明顯更長、更像一份規章，而不是幾句引導語。原因很直接：這是唯一一個<strong>真的會改動你東西</strong>的背景任務（歸檔、合併 skill），所以原始碼作者選擇把容易出錯的判斷邊界直接寫死成規則，而不是信任模型的常識：</p>' +
+  '<ul>' +
+    '<li>「不准刪除任何 skill，最重的動作是歸檔（可還原）」</li>' +
+    '<li>「pinned=yes 的 skill 完全跳過，不准碰」</li>' +
+    '<li>「use_count=0 不是刪除的理由——這只代表『還沒被用過』，不代表『沒用』；要同時滿足『30 天以上』且『內容確實過時或已被別處吸收』才能歸檔」</li>' +
+    '<li>「不要用『每個 skill 觸發條件不同』當作拒絕合併的理由——真正的判準是『一個人類維護者會不會把這些寫成一個 skill 底下的幾個小節』」</li>' +
+  '</ul>' +
+  '<p>這是一個值得記住的設計原則：<strong>提示詞的『抽象程度』要跟它的『風險程度』成反比</strong>——風險越低（例如寫個 session 標題，寫錯了也不過是標題不好聽），提示詞可以越簡短、留更多空間讓模型自由判斷；風險越高（會真的刪東西、動使用者資產），提示詞就該把邊界案例一條條寫死，不留模型自由心證的空間。</p>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>近看：Session 命名——最短，但機關最多的一份</h3>' +
+  '<p>Session 命名的提示詞（<span class="mono">agent/title_generator.py</span>）反而是這幾份裡最短的，但示範了兩個獨立的「讓輸出可靠」的手法：</p>' +
+  '<ul>' +
+    '<li><strong>結構化輸出</strong>——用 <span class="mono">response_format: json_schema</span>（<span class="mono">{"title": "..."}</span>，<span class="mono">additionalProperties: false</span>）強制回應形狀，直接從格式上排除「模型把這句話當成使用者問題來回答」這種真實觀察到的失敗模式（原始碼註解裡點名的失敗案例：標題被生成成 <span class="mono">"&lt;title&gt;...&lt;/title&gt;"</span> 或 <span class="mono">"User: Yep, that&#39;s the catch —"</span>）。</li>' +
+    '<li><strong>Few-shot 對照範例</strong>——不只講規則（3–7 個字、句首大寫、不要句尾標點），還直接給「好例子／太模糊／太長」的具體對照，讓模型校準「多短算短」而不是自己猜。</li>' +
+  '</ul>' +
+  '<p>語言規則用一個佔位字串 <span class="mono">__LANGUAGE_RULE__</span> 在組裝時字串替換——這是這份模板裡唯一動態的部分，其餘規則跟範例整份都是寫死的常數。</p>' +
+'</div>' +
+'<div class="section">' +
+  '<h3>共通模式：這些模板背後其實共用同一條路</h3>' +
+  '<p>雖然內容天差地遠，這幾份模板在「怎麼被呼叫」這件事上其實走的是同一套機制，不是各自發明一套：</p>' +
+  '<ul>' +
+    '<li><strong>同一套輔助模型解析鏈</strong>——第 4 章講過的三層解析（任務專屬設定 → provider 的 <span class="mono">default_aux_model</span> → 主模型）不是壓縮專屬的，Curator 審查、session 命名全部都走同一個 <span class="mono">agent/auxiliary_client.py</span>，只是各自登記不同的任務名稱（<span class="mono">auxiliary.compression.model</span>／<span class="mono">auxiliary.curator.model</span>／<span class="mono">auxiliary.title_generation.model</span>）。</li>' +
+    '<li><strong>風險越高，規則寫得越死</strong>——上面 Curator vs 命名提示的對照已經示範過這個光譜。</li>' +
+    '<li><strong>結構化輸出優先於「請簡短回答」這種軟性請求</strong>——只要輸出會被程式碼直接解析（標題、摘要的固定段落標題），就傾向用 schema 或明確格式規則硬性約束，不依賴模型自己拿捏語氣。</li>' +
+  '</ul>' +
+  '<p>把這些模板放在一起看的意義是：它們不是各自獨立、需要分開記憶的機制，而是同一套「harness 怎麼跟輔助 LLM 溝通」設計哲學，套用在不同任務上的具體實例。</p>' +
 '</div>';
 
 render();
